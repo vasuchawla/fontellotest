@@ -1,11 +1,11 @@
 @font-face {
   font-family: 'fontello';
-  src: url('../font/fontello.eot?26425213');
-  src: url('../font/fontello.eot?26425213#iefix') format('embedded-opentype'),
-       url('../font/fontello.woff2?26425213') format('woff2'),
-       url('../font/fontello.woff?26425213') format('woff'),
-       url('../font/fontello.ttf?26425213') format('truetype'),
-       url('../font/fontello.svg?26425213#fontello') format('svg');
+  src: url('../font/fontello.eot?27276679');
+  src: url('../font/fontello.eot?27276679#iefix') format('embedded-opentype'),
+       url('../font/fontello.woff2?27276679') format('woff2'),
+       url('../font/fontello.woff?27276679') format('woff'),
+       url('../font/fontello.ttf?27276679') format('truetype'),
+       url('../font/fontello.svg?27276679#fontello') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -15,7 +15,7 @@
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'fontello';
-    src: url('../font/fontello.svg?26425213#fontello') format('svg');
+    src: url('../font/fontello.svg?27276679#fontello') format('svg');
   }
 }
 */
@@ -71,10 +71,12 @@
 .icon-profile-&-setting_reset-pin_blue_english:before { content: '\e80e'; } /* '' */
 .icon-profile-&-setting_logout_blue_english:before { content: '\e80f'; } /* '' */
 .icon-profile-&-setting_language_blue_english:before { content: '\e810'; } /* '' */
+.icon-profile-&-setting_personal-details_yellow_english:before { content: '\e811'; } /* '' */
 .icon-profile-&-setting_close_blue_english:before { content: '\e812'; } /* '' */
 .icon-profile-&-setting_change-theme_blue_english:before { content: '\e813'; } /* '' */
 .icon-profile-&-setting_block-card_blue_english:before { content: '\e814'; } /* '' */
 .icon-profile-&-setting_account-details_blue_english:before { content: '\e815'; } /* '' */
+.icon-common_back_blue_arabic:before { content: '\e816'; } /* '' */
 .icon-nav-bar_transfer_outline:before { content: '\e817'; } /* '' */
 .icon-nav-bar_transfer_blue_english_filled:before { content: '\e818'; } /* '' */
 .icon-nav-bar_splitit_outline:before { content: '\e819'; } /* '' */
@@ -88,17 +90,23 @@
 .icon-iskan-store_collect-from-branch_blue_english:before { content: '\e821'; } /* '' */
 .icon-iskan-learning_video-duration_outline:before { content: '\e822'; } /* '' */
 .icon-dashboard_transacion-history_blue_english:before { content: '\e823'; } /* '' */
+.icon-login_add-user_yellow-(1):before { content: '\e824'; } /* '' */
 .icon-common_selected_blue_english_filled:before { content: '\e825'; } /* '' */
 .icon-common_search_blue_english:before { content: '\e826'; } /* '' */
 .icon-common_radio_button-unselected:before { content: '\e827'; } /* '' */
 .icon-common_radio_button-selected:before { content: '\e828'; } /* '' */
 .icon-common_location_blue_english:before { content: '\e829'; } /* '' */
 .icon-common_iskan-learning_blue_english:before { content: '\e82a'; } /* '' */
+.icon-common_expand-list_blue_english-1:before { content: '\e82b'; } /* '' */
 .icon-common_filter_blue_english:before { content: '\e82c'; } /* '' */
+.icon-iskan-store_add-new-address_blue:before { content: '\e82d'; } /* '' */
 .icon-common_expand-list_blue_english:before { content: '\e82e'; } /* '' */
 .icon-common_error-cases_outline:before { content: '\e82f'; } /* '' */
 .icon-common_edit_blue_english:before { content: '\e830'; } /* '' */
+.icon-iskan-store_get-it-delivered_blue_english:before { content: '\e831'; } /* '' */
+.icon-missions_good-habits_blue_english:before { content: '\e832'; } /* '' */
 .icon-common_delete_outline:before { content: '\e833'; } /* '' */
+.icon-missions_closed_blue_english:before { content: '\e834'; } /* '' */
 .icon-common_date-picker_blue_english:before { content: '\e835'; } /* '' */
 .icon-common_copy_blue_english:before { content: '\e836'; } /* '' */
 .icon-common_collapse_blue_english:before { content: '\e837'; } /* '' */
@@ -109,13 +117,21 @@
 .icon-cliq_requests-and-transactions_blue_english:before { content: '\e83c'; } /* '' */
 .icon-transaction-history_debit_outline:before { content: '\e83d'; } /* '' */
 .icon-transaction-history_credit_outline:before { content: '\e83e'; } /* '' */
+.icon-cliq_payment-and-transfers_yellow_english:before { content: '\e83f'; } /* '' */
 .icon-splitit_lock-split-group_blue_english:before { content: '\e840'; } /* '' */
 .icon-splitit_unlock-split-group_blue_english:before { content: '\e841'; } /* '' */
 .icon-bill-payment_multi-bill-payment_blue_english:before { content: '\e842'; } /* '' */
 .icon-common_close_blue_english:before { content: '\e843'; } /* '' */
 .icon-nav-bar_notification_green_english_filled:before { content: '\e844'; } /* '' */
 .icon-nav-bar_services_green_english_filled:before { content: '\e845'; } /* '' */
+.icon-missions_extra-curricular_blue_english:before { content: '\e846'; } /* '' */
+.icon-missions_errands_blue_english:before { content: '\e847'; } /* '' */
+.icon-missions_education_blue_english:before { content: '\e848'; } /* '' */
 .icon-nav-bar_home_green_english_filled:before { content: '\e849'; } /* '' */
+.icon-missions_others_blue_english:before { content: '\e84a'; } /* '' */
+.icon-missions_inew_blue_english:before { content: '\e84b'; } /* '' */
+.icon-missions_in-progress_blue_english:before { content: '\e84c'; } /* '' */
+.icon-missions_household_blue_english:before { content: '\e84d'; } /* '' */
 .icon-paw:before { content: '\f1b0'; } /* '' */
 
 .icon-profile-&-setting_personal-details_yellow_english:before { content: '\e811'; } /* '' */
@@ -126,3 +142,13 @@
 .icon-common_expand-list_blue_english-1:before { content: '\e82b'; } /* '' */
 .icon-iskan-store_add-new-address_blue:before { content: '\e82d'; } /* '' */
 .icon-iskan-store_get-it-delivered_blue_english:before { content: '\e831'; } /* '' */
+
+.icon-missions_good-habits_blue_english:before { content: '\e832'; } /* '' */
+.icon-missions_closed_blue_english:before { content: '\e834'; } /* '' */
+.icon-missions_extra-curricular_blue_english:before { content: '\e846'; } /* '' */
+.icon-missions_errands_blue_english:before { content: '\e847'; } /* '' */
+.icon-missions_education_blue_english:before { content: '\e848'; } /* '' */
+.icon-missions_others_blue_english:before { content: '\e84a'; } /* '' */
+.icon-missions_inew_blue_english:before { content: '\e84b'; } /* '' */
+.icon-missions_in-progress_blue_english:before { content: '\e84c'; } /* '' */
+.icon-missions_household_blue_english:before { content: '\e84d'; } /* '' */
