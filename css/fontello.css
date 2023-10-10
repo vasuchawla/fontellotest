@@ -152,3 +152,7 @@
 .icon-missions_inew_blue_english:before { content: '\e84b'; } /* '' */
 .icon-missions_in-progress_blue_english:before { content: '\e84c'; } /* '' */
 .icon-missions_household_blue_english:before { content: '\e84d'; } /* '' */
+
+.icon-missions_waiting_common_english:before { content: '\e84f'; } /* '' */
+.icon-missions_overdue_common_english:before { content: '\e850'; } /* '' */
+.icon-missions_rejected_common_english:before { content: '\e851'; } /* '' */
