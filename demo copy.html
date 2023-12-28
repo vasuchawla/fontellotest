@@ -1,0 +1,19 @@
+step 1: install library
+    Run the command "npm install --save react-native-sim-cards-manager" to install the librarly
+
+
+step 2: add permissions
+    Make sure the below 2 permissions are added in AndroidManifest.xml file 
+
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_NUMBERS" />
+
+    READ_PHONE_NUMBERS is a subset of READ_PHONE_STATE but is explicitely needed in this case
+
+Step 3: Create the build again. To include the new libraries in the build, a re-build is required.
+
+Step 4: Refer the SimInfoScreen.js
+This file shows a poc on how the functionality works. For example, i created a button which calls a function called getSimInfo.
+This function first requests for the permissions and once granted calls "getSimInfoInner" to actually get the sim details and then stores the sim details in a state variable. (in wavemaker you will need to store this in model variable instead)
+Then in render function, i have listed all properties that are fetched related to the library. some of the properties are availble in only android and not only in ios.
+
