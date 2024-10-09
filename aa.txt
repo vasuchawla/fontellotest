@@ -1,0 +1,21 @@
+1. Review effectiveness - Should result in reduction in escaped defects
+I focused on enhancing the manual code review process and unit testing before delivering. By encouraging more detailed peer reviews and fostering collaboration among team members, I was able to identify and resolve potential issues early. While I don't have the exact percentage of defect reduction, there was a noticeable decrease in escaped defects based on feedback from QA and fewer reported issues in QA testing. This improvement can be attributed to the increased emphasis on quality checks before release.
+
+
+2. # of Escalations/ Complaints - # of complaints/ escalations during the appraisal period
+I successfully maintained a zero escalation rate during the appraisal period by closely tracking project timelines and deliverables and proactively addressing potential risks. 
+There were no escalations or complaints during this appraisal period. This was achieved through proactive management, regular communication with the client, and thorough internal reviews before each delivery.
+
+
+3. # of improvement ideas presented with direct benefits to the client
+This appraisal period, my focus was on improving the reusability of code components, which had a direct benefit to both our team's efficiency and the client's project. By refactoring existing code into modular, reusable components, we significantly reduced redundancy across multiple features, making future enhancements quicker and easier to implement. Additionally, I promoted clean coding practices within the team, which resulted in less technical debt and fewer defects, ultimately leading to smoother project deliveries and fewer issues during QA. These improvements have laid a foundation for maintaining code quality over the long term, benefiting both the current and future projects for the client.
+
+
+4. % of project deliverables on schedule/ SLA
+During this appraisal cycle, 95% of the project deliverables were on schedule and met the agreed SLAs. By introducing weekly sprint retrospectives and adjusting task prioritization, I ensured that we stayed on top of deadlines. For the remaining 5%, I communicated delays to the seniors well in advance and adjusted deliverable expectations without impacting critical milestones.
+
+
+5. % Variance between Actual Defect Injection Rate and Estimated Defect Injection Rate
+Example Answer:
+While we do not track exact numbers for defect injection rates, we focus on maintaining overall code quality by following stringent development and testing processes. Throughout the appraisal period, we emphasized early defect detection through rigorous code reviews and comprehensive manual testing. Though specific variance data isn't available, these efforts have contributed to maintaining a stable quality of deliverables, with minimal unexpected defects during the later stages of the project lifecycle.
+
