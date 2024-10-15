@@ -1,0 +1,74 @@
+android manifest.xml
+
+<intent-filter>
+    <action android:name="android.intent.action.VIEW" />
+
+    <category android:name="android.intent.category.DEFAULT" />
+    <category android:name="android.intent.category.BROWSABLE" />
+
+    <data
+        android:scheme="abk"
+        android:host="abkpay" />
+</intent-filter>
+
+
+info.plist
+
+<key>CFBundleURLTypes</key>
+<array>
+    <dict>
+        <key>CFBundleURLSchemes</key>
+        <array>
+            <string>abk</string>
+        </array>
+    </dict>
+</array>
+
+
+
+
+componentDidMount
+
+ Linking.getInitialURL().then((url) => {
+      if (url) {
+        this.handleDeepLink({ url });
+      }
+    });
+
+    // Listen for any incoming deep links while the app is running
+    this.linkListener = Linking.addEventListener('url', this.handleDeepLink);
+
+
+
+
+
+
+
+
+
+      componentWillUnmount() {
+    // Clean up the event listener when the component is unmounted
+    if (this.linkListener) {
+      this.linkListener.remove();
+    }
+  }
+
+
+
+
+
+
+
+
+  handleDeepLink = (event) => {
+    const url = event.url;
+    const matched = url.match(/abk:\/\/abkpay\/(.+)/);  // Extract "sometext" part
+    if (matched && matched[1]) {
+      this.setState({ text: matched[1] });  // Update state with extracted text
+    }
+  };
+
+
+
+
+  
