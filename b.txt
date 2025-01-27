@@ -1,3 +1,27 @@
+import { View, Text, Button } from 'react-native';
+import crc from 'crc'; // CRC calculation library
+
+const generateQRString = () => {
+  // Step 1: Define the QR string structure (excluding the CRC part)
+  const qrStringWithoutCRC = "00020101021229370016OM12345678901234560115OmanPay5303854540541036304";
+  
+  // Step 2: Append "0000" as placeholders for the CRC calculation
+  const qrStringWithPlaceholder = qrStringWithoutCRC + "0000";
+  
+  // Step 3: Calculate the CRC (ISO/IEC 3309 - CRC-16/CCITT-FALSE)
+  const crcValue = crc.crc16ccitt(qrStringWithPlaceholder, 0xFFFF).toString(16).toUpperCase(); // Hexadecimal, uppercase
+
+  // Ensure the CRC is 4 characters long (pad with leading zeros if necessary)
+  const formattedCRC = crcValue.padStart(4, '0');
+
+  // Step 4: Replace the "0000" placeholder with the calculated CRC
+  const finalQRString = qrStringWithoutCRC + formattedCRC;
+
+  return finalQRString;
+};
+
+
+
 android manifest.xml
 
 <intent-filter>
