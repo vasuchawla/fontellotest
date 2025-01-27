@@ -1,3 +1,7 @@
+https://github.com/xuyazhong/react-native-crc/blob/master/CRC.js
+
+
+
 import { View, Text, Button } from 'react-native';
 import crc from 'crc'; // CRC calculation library
 
