@@ -100,3 +100,200 @@ componentDidMount
 
 
   
+
+
+
+
+
+---------
+
+
+
+
+import CryptoJS from "crypto-js";
+
+// Convert hex string to WordArray
+const hexToWordArray = (hex) => {
+  return CryptoJS.enc.Hex.parse(hex);
+};
+
+// Generate 24-byte key by XORing the three components
+const genSecretKey = (kc1, kc2, kc3) => {
+  const keyBytes = [];
+  for (let i = 0; i < kc1.length; i++) {
+    keyBytes.push(kc1[i] ^ kc2[i] ^ kc3[i]);
+  }
+  return CryptoJS.lib.WordArray.create(keyBytes.slice(0, 24));
+};
+
+// Define key components
+const keyComp1 = hexToWordArray("EA2C0102205161D0DC2A836120D0F8D0");
+const keyComp2 = hexToWordArray("462CABC2EA1A9276435E8F925B2A894A");
+const keyComp3 = hexToWordArray("6D61A834B57FE32A6B20B98651FD8AF8");
+
+// Generate final key
+const key = genSecretKey(keyComp1.words, keyComp2.words, keyComp3.words);
+
+// Encrypt function
+const encrypt = (plainText, key) => {
+  const iv = CryptoJS.enc.Hex.parse("0000000000000000"); // 8-byte IV
+  const encrypted = CryptoJS.TripleDES.encrypt(plainText, key, {
+    mode: CryptoJS.mode.CBC,
+    padding: CryptoJS.pad.Pkcs7,
+    iv: iv,
+  });
+  return encrypted.toString();
+};
+
+// Decrypt function
+const decrypt = (cipherText, key) => {
+  const iv = CryptoJS.enc.Hex.parse("0000000000000000");
+  const decrypted = CryptoJS.TripleDES.decrypt(cipherText, key, {
+    mode: CryptoJS.mode.CBC,
+    padding: CryptoJS.pad.Pkcs7,
+    iv: iv,
+  });
+  return decrypted.toString(CryptoJS.enc.Utf8);
+};
+
+// Example usage
+const plainText = "Daniel Dinakaran";
+const encryptedText = encrypt(plainText, key);
+console.log("Encrypted:", encryptedText);
+
+const decryptedText = decrypt(encryptedText, key);
+console.log("Decrypted:", decryptedText);
+
+
+
+
+pod 'CryptoSwift'
+
+
+
+
+import Foundation
+import CommonCrypto
+
+@objc(TripleDES)
+class TripleDES: NSObject {
+  
+  // Convert a hex string to Data
+  private func hexStringToData(_ hex: String) -> Data {
+    var data = Data()
+    var hexString = hex
+    while hexString.count > 0 {
+        let c = String(hexString.prefix(2))
+        hexString = String(hexString.dropFirst(2))
+        var ch: UInt32 = 0
+        Scanner(string: c).scanHexInt32(&ch)
+        var char = UInt8(ch)
+        data.append(&char, count: 1)
+    }
+    return data
+  }
+  
+  // Generate 24-byte key by XORing the three components
+  private func genSecretKey(kc1: Data, kc2: Data, kc3: Data) -> Data {
+    var keyBytes = [UInt8](repeating: 0, count: kc1.count)
+    for i in 0..<kc1.count {
+        keyBytes[i] = kc1[i] ^ kc2[i] ^ kc3[i]
+    }
+    return Data(keyBytes.prefix(24)) // Ensure 24 bytes for TripleDES
+  }
+  
+  // 3DES Encryption
+  @objc func encrypt(_ plainText: String, key1: String, key2: String, key3: String, resolver: @escaping RCTPromiseResolveBlock, rejecter: @escaping RCTPromiseRejectBlock) {
+    let kc1 = hexStringToData(key1)
+    let kc2 = hexStringToData(key2)
+    let kc3 = hexStringToData(key3)
+    let key = genSecretKey(kc1: kc1, kc2: kc2, kc3: kc3)
+    
+    let iv = Data(repeating: 0, count: 8) // 8-byte IV (all zeros)
+    
+    guard let data = plainText.data(using: .utf8) else {
+      rejecter("ENCODE_ERROR", "Invalid string encoding", nil)
+      return
+    }
+    
+    var encryptedData = Data(count: data.count + kCCBlockSize3DES)
+    var encryptedLength: size_t = 0
+    
+    let status = encryptedData.withUnsafeMutableBytes { encryptedBytes in
+      data.withUnsafeBytes { dataBytes in
+        key.withUnsafeBytes { keyBytes in
+          iv.withUnsafeBytes { ivBytes in
+            CCCrypt(
+              CCOperation(kCCEncrypt),
+              CCAlgorithm(kCCAlgorithm3DES),
+              CCOptions(kCCOptionPKCS7Padding),
+              keyBytes.baseAddress, key.count,
+              ivBytes.baseAddress,
+              dataBytes.baseAddress, data.count,
+              encryptedBytes.baseAddress, encryptedData.count,
+              &encryptedLength
+            )
+          }
+        }
+      }
+    }
+    
+    if status == kCCSuccess {
+      encryptedData.count = encryptedLength
+      resolver(encryptedData.base64EncodedString()) // Return as Base64
+    } else {
+      rejecter("ENCRYPT_ERROR", "Encryption failed", nil)
+    }
+  }
+  
+  // 3DES Decryption
+  @objc func decrypt(_ encryptedBase64: String, key1: String, key2: String, key3: String, resolver: @escaping RCTPromiseResolveBlock, rejecter: @escaping RCTPromiseRejectBlock) {
+    let kc1 = hexStringToData(key1)
+    let kc2 = hexStringToData(key2)
+    let kc3 = hexStringToData(key3)
+    let key = genSecretKey(kc1: kc1, kc2: kc2, kc3: kc3)
+    
+    let iv = Data(repeating: 0, count: 8)
+    
+    guard let encryptedData = Data(base64Encoded: encryptedBase64) else {
+      rejecter("DECODE_ERROR", "Invalid Base64", nil)
+      return
+    }
+    
+    var decryptedData = Data(count: encryptedData.count)
+    var decryptedLength: size_t = 0
+    
+    let status = decryptedData.withUnsafeMutableBytes { decryptedBytes in
+      encryptedData.withUnsafeBytes { encryptedBytes in
+        key.withUnsafeBytes { keyBytes in
+          iv.withUnsafeBytes { ivBytes in
+            CCCrypt(
+              CCOperation(kCCDecrypt),
+              CCAlgorithm(kCCAlgorithm3DES),
+              CCOptions(kCCOptionPKCS7Padding),
+              keyBytes.baseAddress, key.count,
+              ivBytes.baseAddress,
+              encryptedBytes.baseAddress, encryptedData.count,
+              decryptedBytes.baseAddress, decryptedData.count,
+              &decryptedLength
+            )
+          }
+        }
+      }
+    }
+    
+    if status == kCCSuccess {
+      decryptedData.count = decryptedLength
+      resolver(String(data: decryptedData, encoding: .utf8) ?? "Decryption error")
+    } else {
+      rejecter("DECRYPT_ERROR", "Decryption failed", nil)
+    }
+  }
+  
+  @objc static func requiresMainQueueSetup() -> Bool {
+    return false
+  }
+}
+
+
+
