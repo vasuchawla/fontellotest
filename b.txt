@@ -1,3 +1,47 @@
+pre_install do |installer|
+  installer.pod_targets.each do |pod|
+    if pod.name == 'JitsiMeetSDK'
+      pod.build_configurations.each do |config|
+        config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64'
+      end
+    end
+  end
+end
+
+target 'YourApp' do
+  use_frameworks! :linkage => :static
+  config = use_native_modules!
+
+  pod 'JitsiMeetSDK', :modular_headers => true
+
+  # Prevent Jitsi from installing its own React Native
+  $excluded_dependencies = ['React-Core', 'ReactCommon', 'RCTBridge', 'RCTViewManager', 'RCTAnimation']
+  post_install do |installer|
+    installer.pods_project.targets.each do |target|
+      if target.name == 'JitsiMeetSDK'
+        target.build_configurations.each do |config|
+          config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64'
+        end
+      end
+      if $excluded_dependencies.include? target.name
+        target.remove_from_project
+      end
+    end
+  end
+end
+
+
+
+
+
+
+
+
+-----------------------------
+
+
+
+
 https://github.com/xuyazhong/react-native-crc/blob/master/CRC.js
 
 
