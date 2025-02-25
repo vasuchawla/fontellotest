@@ -1,3 +1,38 @@
+const fs = require('fs');
+
+const enFile = 'en.json';
+const arFile = 'ar.json';
+
+// Read JSON files
+const enData = JSON.parse(fs.readFileSync(enFile, 'utf8'));
+const arData = JSON.parse(fs.readFileSync(arFile, 'utf8'));
+
+let updated = false;
+
+// Compare and add missing keys
+for (const key in enData) {
+    if (!(key in arData)) {
+        arData[key] = enData[key]; // Copy value from en.json
+        updated = true;
+    }
+}
+
+// Save updated ar.json if any changes were made
+if (updated) {
+    fs.writeFileSync(arFile, JSON.stringify(arData, null, 2), 'utf8');
+    console.log('Missing keys added to ar.json');
+} else {
+    console.log('ar.json is already up-to-date');
+}
+
+
+
+
+
+
+----
+
+
 1. Review effectiveness - Should result in reduction in escaped defects
 I focused on enhancing the manual code review process and unit testing before delivering. By encouraging more detailed peer reviews and fostering collaboration among team members, I was able to identify and resolve potential issues early. While I don't have the exact percentage of defect reduction, there was a noticeable decrease in escaped defects based on feedback from QA and fewer reported issues in QA testing. This improvement can be attributed to the increased emphasis on quality checks before release.
 
