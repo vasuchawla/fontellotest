@@ -1,4 +1,160 @@
 import { NativeModules } from 'react-native';
+
+NativeModules.EncryptionModule.encryptAESGCM("4111111111111111").then((data) => {
+  console.log("Encrypted:", data);
+});
+
+NativeModules.EncryptionModule.decryptAESGCM(encryptedData).then((plainText) => {
+  console.log("Decrypted:", plainText);
+});
+
+
+
+
+
+/////////
+
+
+fun decryptAESGCM(cipherText: String, authTag: String, iv: String, password: String, salt: String): String? {
+    val key = deriveKey(password, salt, 65536, 256)
+    val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+
+    val ivBytes = Base64.decode(iv, Base64.NO_WRAP)
+    val authTagBytes = Base64.decode(authTag, Base64.NO_WRAP)
+    val cipherTextBytes = Base64.decode(cipherText, Base64.NO_WRAP)
+
+    val spec = GCMParameterSpec(128, ivBytes)
+    cipher.init(Cipher.DECRYPT_MODE, key, spec)
+
+    return try {
+        String(cipher.doFinal(cipherTextBytes), StandardCharsets.UTF_8)
+    } catch (e: Exception) {
+        null
+    }
+}
+
+// Example Usage
+val decryptedText = decryptAESGCM(cipherText, authTag, iv, "H1kUL7JU2ZOGwXP9ghdDdW9C5RF9VQMU", "z9fe6WhB7WGLyroyNX6PnHSqQT6jZGKe")
+println("Decrypted Card Number: $decryptedText")
+
+
+
+/////////
+
+
+import android.util.Base64
+import java.nio.charset.StandardCharsets
+import java.security.SecureRandom
+import javax.crypto.Cipher
+import javax.crypto.KeyGenerator
+import javax.crypto.SecretKey
+import javax.crypto.SecretKeyFactory
+import javax.crypto.spec.GCMParameterSpec
+import javax.crypto.spec.PBEKeySpec
+import javax.crypto.spec.SecretKeySpec
+
+fun encryptAESGCM(plainText: String, password: String, salt: String): Triple<String, String, String> {
+    val key = deriveKey(password, salt, 65536, 256) // Derive AES Key
+    val iv = byteArrayOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16) // Fixed IV
+
+    val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+    val spec = GCMParameterSpec(128, iv)
+    cipher.init(Cipher.ENCRYPT_MODE, key, spec)
+
+    val encryptedBytes = cipher.doFinal(plainText.toByteArray(StandardCharsets.UTF_8))
+    val authTag = cipher.iv
+
+    return Triple(Base64.encodeToString(encryptedBytes, Base64.NO_WRAP),
+                  Base64.encodeToString(authTag, Base64.NO_WRAP),
+                  Base64.encodeToString(iv, Base64.NO_WRAP))
+}
+
+// PBKDF2 Key Derivation
+fun deriveKey(password: String, salt: String, iterations: Int, keyLength: Int): SecretKey {
+    val factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
+    val spec = PBEKeySpec(password.toCharArray(), salt.toByteArray(), iterations, keyLength)
+    return SecretKeySpec(factory.generateSecret(spec).encoded, "AES")
+}
+
+// Example Usage
+val (cipherText, authTag, iv) = encryptAESGCM("4111111111111111", "H1kUL7JU2ZOGwXP9ghdDdW9C5RF9VQMU", "z9fe6WhB7WGLyroyNX6PnHSqQT6jZGKe")
+println("CipherText: $cipherText")
+println("Auth Tag: $authTag")
+println("IV: $iv")
+
+/////////
+
+func decryptAESGCM(cipherText: Data, authTag: Data, iv: Data, password: String, salt: String) -> String? {
+    let passwordData = password.data(using: .utf8)!
+    let saltData = salt.data(using: .utf8)!
+
+    // Derive 256-bit Key
+    let key = deriveKey(password: passwordData, salt: saltData, keyLength: 32)
+    let symmetricKey = SymmetricKey(data: key)
+
+    // Decrypt
+    if let sealedBox = try? AES.GCM.SealedBox(nonce: AES.GCM.Nonce(data: iv), ciphertext: cipherText, tag: authTag),
+       let decryptedData = try? AES.GCM.open(sealedBox, using: symmetricKey) {
+        return String(data: decryptedData, encoding: .utf8)
+    }
+    
+    return nil
+}
+
+// Example Usage
+let decryptedText = decryptAESGCM(cipherText: result.cipherText, authTag: result.authTag, iv: result.iv, password: "H1kUL7JU2ZOGwXP9ghdDdW9C5RF9VQMU", salt: "z9fe6WhB7WGLyroyNX6PnHSqQT6jZGKe")
+print("Decrypted Card Number: \(decryptedText ?? "Failed to decrypt")")
+
+
+
+/////////
+
+
+
+
+import CryptoKit
+import Foundation
+
+func encryptAESGCM(plainText: String, password: String, salt: String) -> (cipherText: Data, authTag: Data, iv: Data)? {
+    let passwordData = password.data(using: .utf8)!
+    let saltData = salt.data(using: .utf8)!
+    
+    // Derive 256-bit Key using PBKDF2
+    let key = deriveKey(password: passwordData, salt: saltData, keyLength: 32)
+    
+    // Generate IV (Initialization Vector)
+    let iv = Data([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]) // Same IV as required
+
+    let symmetricKey = SymmetricKey(data: key)
+    
+    // Encrypt
+    if let sealedBox = try? AES.GCM.seal(plainText.data(using: .utf8)!, using: symmetricKey, nonce: AES.GCM.Nonce(data: iv)) {
+        return (sealedBox.ciphertext, sealedBox.tag, iv)
+    }
+    
+    return nil
+}
+
+// PBKDF2 Key Derivation
+func deriveKey(password: Data, salt: Data, keyLength: Int) -> Data {
+    let key = try! HKDF<SHA256>.deriveKey(inputKeyMaterial: SymmetricKey(data: password), salt: salt, outputByteCount: keyLength)
+    return key.withUnsafeBytes { Data(Array($0)) }
+}
+
+// Usage
+if let result = encryptAESGCM(plainText: "4111111111111111", password: "H1kUL7JU2ZOGwXP9ghdDdW9C5RF9VQMU", salt: "z9fe6WhB7WGLyroyNX6PnHSqQT6jZGKe") {
+    print("CipherText: \(result.cipherText.base64EncodedString())")
+    print("Auth Tag: \(result.authTag.base64EncodedString())")
+    print("IV: \(result.iv.base64EncodedString())")
+}
+
+
+
+
+/////////
+
+
+import { NativeModules } from 'react-native';
 import crypto from 'react-native-crypto';
 import { Buffer } from 'buffer';
 
