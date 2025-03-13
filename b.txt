@@ -1,343 +1,55 @@
-pre_install do |installer|
-  installer.pod_targets.each do |pod|
-    if pod.name == 'JitsiMeetSDK'
-      pod.build_configurations.each do |config|
-        config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64'
-      end
-    end
-  end
-end
+import { NativeModules } from 'react-native';
+import crypto from 'react-native-crypto';
+import { Buffer } from 'buffer';
 
-target 'YourApp' do
-  use_frameworks! :linkage => :static
-  config = use_native_modules!
+// Convert text to Uint8Array
+const toUint8Array = (str) => new TextEncoder().encode(str);
 
-  pod 'JitsiMeetSDK', :modular_headers => true
+// 1. Initialization Vector (IV) - 16 bytes
+const IV = Uint8Array.from([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
 
-  # Prevent Jitsi from installing its own React Native
-  $excluded_dependencies = ['React-Core', 'ReactCommon', 'RCTBridge', 'RCTViewManager', 'RCTAnimation']
-  post_install do |installer|
-    installer.pods_project.targets.each do |target|
-      if target.name == 'JitsiMeetSDK'
-        target.build_configurations.each do |config|
-          config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64'
-        end
-      end
-      if $excluded_dependencies.include? target.name
-        target.remove_from_project
-      end
-    end
-  end
-end
-
-
-
-
-
-
-
-
------------------------------
-
-
-
-
-https://github.com/xuyazhong/react-native-crc/blob/master/CRC.js
-
-
-
-import { View, Text, Button } from 'react-native';
-import crc from 'crc'; // CRC calculation library
-
-const generateQRString = () => {
-  // Step 1: Define the QR string structure (excluding the CRC part)
-  const qrStringWithoutCRC = "00020101021229370016OM12345678901234560115OmanPay5303854540541036304";
-  
-  // Step 2: Append "0000" as placeholders for the CRC calculation
-  const qrStringWithPlaceholder = qrStringWithoutCRC + "0000";
-  
-  // Step 3: Calculate the CRC (ISO/IEC 3309 - CRC-16/CCITT-FALSE)
-  const crcValue = crc.crc16ccitt(qrStringWithPlaceholder, 0xFFFF).toString(16).toUpperCase(); // Hexadecimal, uppercase
-
-  // Ensure the CRC is 4 characters long (pad with leading zeros if necessary)
-  const formattedCRC = crcValue.padStart(4, '0');
-
-  // Step 4: Replace the "0000" placeholder with the calculated CRC
-  const finalQRString = qrStringWithoutCRC + formattedCRC;
-
-  return finalQRString;
-};
-
-
-
-android manifest.xml
-
-<intent-filter>
-    <action android:name="android.intent.action.VIEW" />
-
-    <category android:name="android.intent.category.DEFAULT" />
-    <category android:name="android.intent.category.BROWSABLE" />
-
-    <data
-        android:scheme="abk"
-        android:host="abkpay" />
-</intent-filter>
-
-
-info.plist
-
-<key>CFBundleURLTypes</key>
-<array>
-    <dict>
-        <key>CFBundleURLSchemes</key>
-        <array>
-            <string>abk</string>
-        </array>
-    </dict>
-</array>
-
-
-
-
-componentDidMount
-
- Linking.getInitialURL().then((url) => {
-      if (url) {
-        this.handleDeepLink({ url });
-      }
+// 2. PBKDF2 Key Derivation (SecretKeyFactory)
+const deriveKey = async (password, salt, iterations, keyLen) => {
+  return new Promise((resolve, reject) => {
+    crypto.pbkdf2(password, salt, iterations, keyLen / 8, 'sha256', (err, derivedKey) => {
+      if (err) reject(err);
+      resolve(derivedKey);
     });
-
-    // Listen for any incoming deep links while the app is running
-    this.linkListener = Linking.addEventListener('url', this.handleDeepLink);
-
-
-
-
-
-
-
-
-
-      componentWillUnmount() {
-    // Clean up the event listener when the component is unmounted
-    if (this.linkListener) {
-      this.linkListener.remove();
-    }
-  }
-
-
-
-
-
-
-
-
-  handleDeepLink = (event) => {
-    const url = event.url;
-    const matched = url.match(/abk:\/\/abkpay\/(.+)/);  // Extract "sometext" part
-    if (matched && matched[1]) {
-      this.setState({ text: matched[1] });  // Update state with extracted text
-    }
-  };
-
-
-
-
-  
-
-
-
-
-
----------
-
-
-
-
-import CryptoJS from "crypto-js";
-
-// Convert hex string to WordArray
-const hexToWordArray = (hex) => {
-  return CryptoJS.enc.Hex.parse(hex);
-};
-
-// Generate 24-byte key by XORing the three components
-const genSecretKey = (kc1, kc2, kc3) => {
-  const keyBytes = [];
-  for (let i = 0; i < kc1.length; i++) {
-    keyBytes.push(kc1[i] ^ kc2[i] ^ kc3[i]);
-  }
-  return CryptoJS.lib.WordArray.create(keyBytes.slice(0, 24));
-};
-
-// Define key components
-const keyComp1 = hexToWordArray("EA2C0102205161D0DC2A836120D0F8D0");
-const keyComp2 = hexToWordArray("462CABC2EA1A9276435E8F925B2A894A");
-const keyComp3 = hexToWordArray("6D61A834B57FE32A6B20B98651FD8AF8");
-
-// Generate final key
-const key = genSecretKey(keyComp1.words, keyComp2.words, keyComp3.words);
-
-// Encrypt function
-const encrypt = (plainText, key) => {
-  const iv = CryptoJS.enc.Hex.parse("0000000000000000"); // 8-byte IV
-  const encrypted = CryptoJS.TripleDES.encrypt(plainText, key, {
-    mode: CryptoJS.mode.CBC,
-    padding: CryptoJS.pad.Pkcs7,
-    iv: iv,
   });
-  return encrypted.toString();
 };
 
-// Decrypt function
-const decrypt = (cipherText, key) => {
-  const iv = CryptoJS.enc.Hex.parse("0000000000000000");
-  const decrypted = CryptoJS.TripleDES.decrypt(cipherText, key, {
-    mode: CryptoJS.mode.CBC,
-    padding: CryptoJS.pad.Pkcs7,
-    iv: iv,
-  });
-  return decrypted.toString(CryptoJS.enc.Utf8);
+// 3. Encrypt Data using AES-GCM
+const encryptData = async (plainText) => {
+  try {
+    const password = "H1kUL7JU2ZOGwXP9ghdDdW9C5RF9VQMUA";
+    const salt = "z9fe6WhB7WGLyroyNX6PnHSqQT6jZGKeA";
+    const iterations = 65536;
+    const keyLength = 256;
+
+    // Derive AES Key
+    const key = await deriveKey(password, salt, iterations, keyLength);
+
+    // 4. Create AES-GCM Cipher
+    const cipher = crypto.createCipheriv('aes-256-gcm', key, IV);
+    
+    // Encrypt Data
+    let encrypted = cipher.update(plainText, 'utf8', 'base64');
+    encrypted += cipher.final('base64');
+
+    // Get Authentication Tag (GCM Tag)
+    const authTag = cipher.getAuthTag().toString('base64');
+
+    return { encryptedData: encrypted, authTag };
+  } catch (error) {
+    console.error("Encryption Error:", error);
+    return null;
+  }
 };
 
-// Example usage
-const plainText = "Daniel Dinakaran";
-const encryptedText = encrypt(plainText, key);
-console.log("Encrypted:", encryptedText);
-
-const decryptedText = decrypt(encryptedText, key);
-console.log("Decrypted:", decryptedText);
-
-
-
-
-pod 'CryptoSwift'
-
-
-
-
-import Foundation
-import CommonCrypto
-
-@objc(TripleDES)
-class TripleDES: NSObject {
-  
-  // Convert a hex string to Data
-  private func hexStringToData(_ hex: String) -> Data {
-    var data = Data()
-    var hexString = hex
-    while hexString.count > 0 {
-        let c = String(hexString.prefix(2))
-        hexString = String(hexString.dropFirst(2))
-        var ch: UInt32 = 0
-        Scanner(string: c).scanHexInt32(&ch)
-        var char = UInt8(ch)
-        data.append(&char, count: 1)
-    }
-    return data
-  }
-  
-  // Generate 24-byte key by XORing the three components
-  private func genSecretKey(kc1: Data, kc2: Data, kc3: Data) -> Data {
-    var keyBytes = [UInt8](repeating: 0, count: kc1.count)
-    for i in 0..<kc1.count {
-        keyBytes[i] = kc1[i] ^ kc2[i] ^ kc3[i]
-    }
-    return Data(keyBytes.prefix(24)) // Ensure 24 bytes for TripleDES
-  }
-  
-  // 3DES Encryption
-  @objc func encrypt(_ plainText: String, key1: String, key2: String, key3: String, resolver: @escaping RCTPromiseResolveBlock, rejecter: @escaping RCTPromiseRejectBlock) {
-    let kc1 = hexStringToData(key1)
-    let kc2 = hexStringToData(key2)
-    let kc3 = hexStringToData(key3)
-    let key = genSecretKey(kc1: kc1, kc2: kc2, kc3: kc3)
-    
-    let iv = Data(repeating: 0, count: 8) // 8-byte IV (all zeros)
-    
-    guard let data = plainText.data(using: .utf8) else {
-      rejecter("ENCODE_ERROR", "Invalid string encoding", nil)
-      return
-    }
-    
-    var encryptedData = Data(count: data.count + kCCBlockSize3DES)
-    var encryptedLength: size_t = 0
-    
-    let status = encryptedData.withUnsafeMutableBytes { encryptedBytes in
-      data.withUnsafeBytes { dataBytes in
-        key.withUnsafeBytes { keyBytes in
-          iv.withUnsafeBytes { ivBytes in
-            CCCrypt(
-              CCOperation(kCCEncrypt),
-              CCAlgorithm(kCCAlgorithm3DES),
-              CCOptions(kCCOptionPKCS7Padding),
-              keyBytes.baseAddress, key.count,
-              ivBytes.baseAddress,
-              dataBytes.baseAddress, data.count,
-              encryptedBytes.baseAddress, encryptedData.count,
-              &encryptedLength
-            )
-          }
-        }
-      }
-    }
-    
-    if status == kCCSuccess {
-      encryptedData.count = encryptedLength
-      resolver(encryptedData.base64EncodedString()) // Return as Base64
-    } else {
-      rejecter("ENCRYPT_ERROR", "Encryption failed", nil)
-    }
-  }
-  
-  // 3DES Decryption
-  @objc func decrypt(_ encryptedBase64: String, key1: String, key2: String, key3: String, resolver: @escaping RCTPromiseResolveBlock, rejecter: @escaping RCTPromiseRejectBlock) {
-    let kc1 = hexStringToData(key1)
-    let kc2 = hexStringToData(key2)
-    let kc3 = hexStringToData(key3)
-    let key = genSecretKey(kc1: kc1, kc2: kc2, kc3: kc3)
-    
-    let iv = Data(repeating: 0, count: 8)
-    
-    guard let encryptedData = Data(base64Encoded: encryptedBase64) else {
-      rejecter("DECODE_ERROR", "Invalid Base64", nil)
-      return
-    }
-    
-    var decryptedData = Data(count: encryptedData.count)
-    var decryptedLength: size_t = 0
-    
-    let status = decryptedData.withUnsafeMutableBytes { decryptedBytes in
-      encryptedData.withUnsafeBytes { encryptedBytes in
-        key.withUnsafeBytes { keyBytes in
-          iv.withUnsafeBytes { ivBytes in
-            CCCrypt(
-              CCOperation(kCCDecrypt),
-              CCAlgorithm(kCCAlgorithm3DES),
-              CCOptions(kCCOptionPKCS7Padding),
-              keyBytes.baseAddress, key.count,
-              ivBytes.baseAddress,
-              encryptedBytes.baseAddress, encryptedData.count,
-              decryptedBytes.baseAddress, decryptedData.count,
-              &decryptedLength
-            )
-          }
-        }
-      }
-    }
-    
-    if status == kCCSuccess {
-      decryptedData.count = decryptedLength
-      resolver(String(data: decryptedData, encoding: .utf8) ?? "Decryption error")
-    } else {
-      rejecter("DECRYPT_ERROR", "Decryption failed", nil)
-    }
-  }
-  
-  @objc static func requiresMainQueueSetup() -> Bool {
-    return false
-  }
-}
-
-
-
+// Usage Example
+encryptData("4111111111111111") // Example Card Number
+  .then(({ encryptedData, authTag }) => {
+    console.log("Encrypted Card Number:", encryptedData);
+    console.log("Auth Tag:", authTag);
+  })
+  .catch(console.error);
