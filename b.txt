@@ -1,61 +1,88 @@
-import Foundation
-import CryptoKit
-
-// Step 1: Initialization Vector (IV)
-let iv: [UInt8] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
-let ivData = Data(iv)
-
-// Step 2: Generate Secret Key using PBKDF2WithHmacSHA256
-func deriveKey(password: String, salt: String, iterations: Int = 65536, keyLength: Int = 32) -> SymmetricKey? {
-    guard let passwordData = password.data(using: .utf8),
-          let saltData = salt.data(using: .utf8) else { return nil }
-    
-    var derivedKey = Data(count: keyLength)
-    
-    let result = derivedKey.withUnsafeMutableBytes { derivedKeyBytes in
-        saltData.withUnsafeBytes { saltBytes in
-            CCKeyDerivationPBKDF(
-                CCPBKDFAlgorithm(kCCPBKDF2),
-                password, password.count,
-                saltBytes.bindMemory(to: UInt8.self).baseAddress, salt.count,
-                CCPseudoRandomAlgorithm(kCCPRFHmacAlgSHA256),
-                UInt32(iterations),
-                derivedKeyBytes.bindMemory(to: UInt8.self).baseAddress, keyLength
-            )
+ static func encryptCardData(_ cardData: String) -> String? {
+        do {
+            // 1. Create initialization vector
+            let ivBytes: [UInt8] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+            let iv = Data(ivBytes)
+            
+            // 2 & 3. Generate secret key using PBKDF2
+            let password = "H1kUL7JU2ZOGwDP9ghdDdW9C5RF9VQMM"
+            let saltString = "z9fe6WhB7WGLyroyND6PnHSqQT6jZGKf"
+            guard let salt = saltString.data(using: .utf8) else {
+                return nil
+            }
+            
+            // Create a derived key using PBKDF2
+            let derivedKey = try deriveKey(password: password, salt: salt, rounds: 65536, keyLength: 32)
+            
+            // 4. Create a SymmetricKey from the derived key data
+            let symmetricKey = SymmetricKey(data: derivedKey)
+            
+            // 5. Create a nonce from our initialization vector
+            let nonce = try AES.GCM.Nonce(data: iv)
+            
+            // Get the card data as data
+            guard let cardDataBytes = cardData.data(using: .utf8) else {
+                return nil
+            }
+            
+            // 6. Encrypt the data using AES-GCM
+            let sealedBox = try AES.GCM.seal(cardDataBytes, using: symmetricKey, nonce: nonce)
+            
+            // Combine the encrypted data with the authentication tag
+            let combined = sealedBox.ciphertext + sealedBox.tag
+            
+            // Base64 encode the result
+            return combined.base64EncodedString()
+            
+        } catch {
+            print("Encryption error: \(error.localizedDescription)")
+            return nil
         }
     }
     
-    return result == kCCSuccess ? SymmetricKey(data: derivedKey) : nil
-}
-
-// Password and Salt
-let password = "H1kUL7JU2ZOGwDP9ghdDdW9C5RF9VQMU"
-let salt = "z9fe6WhB7WGLyroyND6PnHSqQT6jZGKe"
-
-guard let secretKey = deriveKey(password: password, salt: salt) else {
-    fatalError("Failed to derive key")
-}
-
-// Step 3 & 4: Encrypt Card Number using AES-GCM
-func encrypt(data: Data, key: SymmetricKey, iv: Data) -> Data? {
-    let sealedBox = try? AES.GCM.seal(data, using: key, nonce: AES.GCM.Nonce(data: iv), authenticating: Data())
-    return sealedBox?.combined
-}
-
-// Example card number
-let cardNumber = "4111111111111111"
-guard let cardData = cardNumber.data(using: .utf8) else { fatalError("Invalid Card Data") }
-
-if let encryptedData = encrypt(data: cardData, key: secretKey, iv: ivData) {
-    let base64Encoded = encryptedData.base64EncodedString()
-    print("Encrypted Card Number (Base64): \(base64Encoded)")
-} else {
-    print("Encryption failed")
+    // Helper function to derive a key using PBKDF2
+    private static func deriveKey(password: String, salt: Data, rounds: Int, keyLength: Int) throws -> Data {
+        // Use CommonCrypto for PBKDF2 since CryptoKit doesn't provide direct PBKDF2 with SHA256
+        guard let passwordData = password.data(using: .utf8) else {
+            throw NSError(domain: "AESGCMEncryption", code: -1, userInfo: [NSLocalizedDescriptionKey: "Unable to convert password to data"])
+        }
+        
+        var derivedKeyData = Data(count: keyLength)
+        
+        let derivationStatus = derivedKeyData.withUnsafeMutableBytes { derivedKeyBytes in
+            salt.withUnsafeBytes { saltBytes in
+                passwordData.withUnsafeBytes { passwordBytes in
+                    CCKeyDerivationPBKDF(
+                        CCPBKDFAlgorithm(kCCPBKDF2),
+                        passwordBytes.baseAddress, passwordData.count,
+                        saltBytes.baseAddress, salt.count,
+                        CCPseudoRandomAlgorithm(kCCPRFHmacAlgSHA256),
+                        UInt32(rounds),
+                        derivedKeyBytes.baseAddress, keyLength
+                    )
+                }
+            }
+        }
+        
+        guard derivationStatus == kCCSuccess else {
+            throw NSError(domain: "AESGCMEncryption", code: Int(derivationStatus), userInfo: [NSLocalizedDescriptionKey: "Unable to derive key"])
+        }
+        
+        return derivedKeyData
+    }
 }
 
 
 
 ..
+.
+.
+.
+.
+.
+
+
+
 
 .
 .
