@@ -1,3 +1,78 @@
+import Foundation
+import CryptoKit
+
+// Step 1: Initialization Vector (IV)
+let iv: [UInt8] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+let ivData = Data(iv)
+
+// Step 2: Generate Secret Key using PBKDF2WithHmacSHA256
+func deriveKey(password: String, salt: String, iterations: Int = 65536, keyLength: Int = 32) -> SymmetricKey? {
+    guard let passwordData = password.data(using: .utf8),
+          let saltData = salt.data(using: .utf8) else { return nil }
+    
+    var derivedKey = Data(count: keyLength)
+    
+    let result = derivedKey.withUnsafeMutableBytes { derivedKeyBytes in
+        saltData.withUnsafeBytes { saltBytes in
+            CCKeyDerivationPBKDF(
+                CCPBKDFAlgorithm(kCCPBKDF2),
+                password, password.count,
+                saltBytes.bindMemory(to: UInt8.self).baseAddress, salt.count,
+                CCPseudoRandomAlgorithm(kCCPRFHmacAlgSHA256),
+                UInt32(iterations),
+                derivedKeyBytes.bindMemory(to: UInt8.self).baseAddress, keyLength
+            )
+        }
+    }
+    
+    return result == kCCSuccess ? SymmetricKey(data: derivedKey) : nil
+}
+
+// Password and Salt
+let password = "H1kUL7JU2ZOGwDP9ghdDdW9C5RF9VQMU"
+let salt = "z9fe6WhB7WGLyroyND6PnHSqQT6jZGKe"
+
+guard let secretKey = deriveKey(password: password, salt: salt) else {
+    fatalError("Failed to derive key")
+}
+
+// Step 3 & 4: Encrypt Card Number using AES-GCM
+func encrypt(data: Data, key: SymmetricKey, iv: Data) -> Data? {
+    let sealedBox = try? AES.GCM.seal(data, using: key, nonce: AES.GCM.Nonce(data: iv), authenticating: Data())
+    return sealedBox?.combined
+}
+
+// Example card number
+let cardNumber = "4111111111111111"
+guard let cardData = cardNumber.data(using: .utf8) else { fatalError("Invalid Card Data") }
+
+if let encryptedData = encrypt(data: cardData, key: secretKey, iv: ivData) {
+    let base64Encoded = encryptedData.base64EncodedString()
+    print("Encrypted Card Number (Base64): \(base64Encoded)")
+} else {
+    print("Encryption failed")
+}
+
+
+
+..
+
+.
+.
+.
+.
+.
+.
+.
+.
+
+
+
+
+
+
+
+
 import { NativeModules } from 'react-native';
 
 NativeModules.EncryptionModule.encryptAESGCM("4111111111111111").then((data) => {
