@@ -1,0 +1,181 @@
+
+
+import Foundation
+import CommonCrypto
+
+class TripleDESDecryptor {
+    
+    static func decrypt(encryptedText: String, key1: String, key2: String, key3: String, iv: String) -> String? {
+        guard let encryptedData = Data(base64Encoded: encryptedText) else { return nil }
+        
+        // Process keys
+        let key1Data = MD5(string: key1).subdata(in: 0..<8)
+        let key2Data = MD5(string: key2).subdata(in: 0..<8)
+        let key3Data = MD5(string: key3).subdata(in: 0..<8)
+        
+        // Combine keys
+        var combinedKey = Data()
+        combinedKey.append(key1Data)
+        combinedKey.append(key2Data)
+        combinedKey.append(key3Data)
+        
+        // Get IV - ensure it's exactly 8 bytes (DES block size)
+        var ivData = iv.data(using: .utf8)!
+        
+        // If IV is longer than 8 bytes, truncate it
+        if ivData.count > 8 {
+            ivData = ivData.subdata(in: 0..<8)
+        }
+        // If IV is shorter than 8 bytes, pad it
+        else if ivData.count < 8 {
+            var paddedIv = Data(count: 8)
+            paddedIv.replaceSubrange(0..<min(ivData.count, 8), with: ivData)
+            ivData = paddedIv
+        }
+        
+        // Create a buffer for the decrypted data
+        let bufferSize = encryptedData.count + kCCBlockSize3DES
+        var buffer = [UInt8](repeating: 0, count: bufferSize)
+        
+        var numBytesDecrypted = 0
+        
+        let cryptStatus = combinedKey.withUnsafeBytes { keyBytes in
+            encryptedData.withUnsafeBytes { dataBytes in
+                ivData.withUnsafeBytes { ivBytes in
+                    CCCrypt(
+                        CCOperation(kCCDecrypt),
+                        CCAlgorithm(kCCAlgorithm3DES),
+                        CCOptions(kCCOptionPKCS7Padding),
+                        keyBytes.baseAddress, combinedKey.count,
+                        ivBytes.baseAddress,
+                        dataBytes.baseAddress, encryptedData.count,
+                        &buffer, bufferSize,
+                        &numBytesDecrypted
+                    )
+                }
+            }
+        }
+        
+        if cryptStatus == kCCSuccess {
+            let decryptedData = Data(bytes: buffer, count: numBytesDecrypted)
+            return String(data: decryptedData, encoding: .utf8)
+        }
+        
+        return nil
+    }
+    
+    // Helper function to calculate MD5 hash
+    static func MD5(string: String) -> Data {
+        let messageData = string.data(using: .utf8)!
+        var digestData = Data(count: Int(CC_MD5_DIGEST_LENGTH))
+        
+        _ = digestData.withUnsafeMutableBytes { digestBytes in
+            messageData.withUnsafeBytes { messageBytes in
+                CC_MD5(messageBytes.baseAddress, CC_LONG(messageData.count), digestBytes.bindMemory(to: UInt8.self).baseAddress)
+            }
+        }
+        
+        return digestData
+    }
+}
+
+// Example usage
+let encryptedText = "your_encrypted_text_here"
+let key1 = "first_key"
+let key2 = "second_key"
+let key3 = "third_key"
+let iv = "iv_8byte" // 8-byte initialization vector
+
+if let decryptedText = TripleDESDecryptor.decrypt(encryptedText: encryptedText, key1: key1, key2: key2, key3: key3, iv: iv) {
+    print("Decrypted text: \(decryptedText)")
+} else {
+    print("Decryption failed")
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+import java.security.MessageDigest;
+import java.util.Arrays;
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import android.util.Base64;
+
+public class TripleDESDecryptor {
+    
+    public static String decrypt(String encryptedText, String key1, String key2, String key3, String iv) throws Exception {
+        // Combine the three keys
+        byte[] keyBytes1 = key1.getBytes("UTF-8");
+        byte[] keyBytes2 = key2.getBytes("UTF-8");
+        byte[] keyBytes3 = key3.getBytes("UTF-8");
+        
+        // Ensure each key is exactly 8 bytes (64 bits)
+        keyBytes1 = Arrays.copyOf(MessageDigest.getInstance("MD5").digest(keyBytes1), 8);
+        keyBytes2 = Arrays.copyOf(MessageDigest.getInstance("MD5").digest(keyBytes2), 8);
+        keyBytes3 = Arrays.copyOf(MessageDigest.getInstance("MD5").digest(keyBytes3), 8);
+        
+        // Combine the three keys into a 24-byte key
+        byte[] combinedKey = new byte[24];
+        System.arraycopy(keyBytes1, 0, combinedKey, 0, 8);
+        System.arraycopy(keyBytes2, 0, combinedKey, 8, 8);
+        System.arraycopy(keyBytes3, 0, combinedKey, 16, 8);
+        
+        // Create the key specification
+        SecretKeySpec keySpec = new SecretKeySpec(combinedKey, "DESede");
+        
+        // Create the initialization vector - ensure it's exactly 8 bytes
+        byte[] ivBytes = iv.getBytes("UTF-8");
+        // If IV is longer than 8 bytes, truncate it
+        if (ivBytes.length > 8) {
+            ivBytes = Arrays.copyOf(ivBytes, 8);
+        }
+        // If IV is shorter than 8 bytes, pad it
+        else if (ivBytes.length < 8) {
+            byte[] paddedIv = new byte[8];
+            System.arraycopy(ivBytes, 0, paddedIv, 0, ivBytes.length);
+            // Pad remaining bytes with zeros
+            for (int i = ivBytes.length; i < 8; i++) {
+                paddedIv[i] = 0;
+            }
+            ivBytes = paddedIv;
+        }
+        
+        IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
+        
+        // Initialize the cipher
+        Cipher cipher = Cipher.getInstance("DESede/CBC/PKCS5Padding");
+        cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
+        
+        // Decrypt the data
+        byte[] encryptedBytes = Base64.decode(encryptedText, Base64.DEFAULT);
+        byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
+        
+        return new String(decryptedBytes, "UTF-8");
+    }
+    
+    // Example usage
+    public static void main(String[] args) {
+        try {
+            String encryptedText = "your_encrypted_text_here";
+            String key1 = "first_key";
+            String key2 = "second_key";
+            String key3 = "third_key";
+            String iv = "iv_8byte"; // 8-byte initialization vector
+            
+            String decryptedText = decrypt(encryptedText, key1, key2, key3, iv);
+            System.out.println("Decrypted text: " + decryptedText);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
