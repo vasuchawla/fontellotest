@@ -1,0 +1,206 @@
+import Foundation
+import CommonCrypto
+
+// Convert hex string to Data
+func hexStringToData(_ hexString: String) -> Data? {
+    var data = Data()
+    var hex = hexString
+    if hex.count % 2 != 0 { return nil } // Ensure even length
+    while hex.count > 0 {
+        let subIndex = hex.index(hex.startIndex, offsetBy: 2)
+        let byteString = hex[..<subIndex]
+        hex = String(hex[subIndex...])
+        if var byte = UInt8(byteString, radix: 16) {
+            data.append(&byte, count: 1)
+        } else {
+            return nil
+        }
+    }
+    return data
+}
+
+// Generate final 3DES key
+func generateTripleDESKey(parts: [Data]) -> Data? {
+    guard parts.count == 3 else { return nil }
+    return parts[0] + parts[1] + parts[2] // Concatenate 3 key parts
+}
+
+// Triple DES Decryption
+func tripleDESDecrypt(cipherText: Data, key: Data, iv: Data) -> String? {
+    let keyLength = kCCKeySize3DES // 24 bytes for Triple DES key
+    let dataOutSize = cipherText.count + kCCBlockSize3DES
+    var dataOut = Data(count: dataOutSize)
+    var numBytesDecrypted: size_t = 0
+
+    let status = key.withUnsafeBytes { keyBytes in
+        iv.withUnsafeBytes { ivBytes in
+            cipherText.withUnsafeBytes { encryptedBytes in
+                dataOut.withUnsafeMutableBytes { decryptedBytes in
+                    CCCrypt(
+                        CCOperation(kCCDecrypt), // Decrypt operation
+                        CCAlgorithm(kCCAlgorithm3DES), // 3DES algorithm
+                        CCOptions(kCCOptionPKCS7Padding), // PKCS7 padding
+                        keyBytes.baseAddress, keyLength,
+                        ivBytes.baseAddress,
+                        encryptedBytes.baseAddress, cipherText.count,
+                        decryptedBytes.baseAddress, dataOutSize,
+                        &numBytesDecrypted
+                    )
+                }
+            }
+        }
+    }
+
+    guard status == kCCSuccess else { return nil }
+    dataOut.removeSubrange(numBytesDecrypted..<dataOut.count) // Trim extra data
+    return String(data: dataOut, encoding: .utf8)
+}
+
+// Example Hex Inputs
+let keyComp1Hex = "EA2C0102205161D0D2A836120D0F8D0"
+let keyComp2Hex = "462CABC2EA1A9276435E8F925B2A894A"
+let keyComp3Hex = "6D61A834B57FE32A6B20B98651FD8AF8"
+let ivHex = "0000000000000000"
+let cipherTextHex = "YOUR_CIPHERTEXT_HERE" // Replace with your actual ciphertext
+
+// Convert to Data
+if let keyComp1 = hexStringToData(keyComp1Hex),
+   let keyComp2 = hexStringToData(keyComp2Hex),
+   let keyComp3 = hexStringToData(keyComp3Hex),
+   let iv = hexStringToData(ivHex),
+   let cipherText = hexStringToData(cipherTextHex),
+   let key = generateTripleDESKey(parts: [keyComp1, keyComp2, keyComp3]) {
+
+    // Perform decryption
+    if let decryptedText = tripleDESDecrypt(cipherText: cipherText, key: key, iv: iv) {
+        print("Decrypted Text: \(decryptedText)")
+    } else {
+        print("Decryption failed")
+    }
+} else {
+    print("Failed to process input data")
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import Foundation
+import CommonCrypto
+
+// Helper functions for hex conversions
+extension String {
+    func hexadecimal() -> Data? {
+        var data = Data(capacity: self.count / 2)
+        let regex = try! NSRegularExpression(pattern: "[0-9a-f]{1,2}", options: .caseInsensitive)
+        regex.enumerateMatches(in: self, range: NSRange(self.startIndex..., in: self)) { match, _, _ in
+            let byteString = (self as NSString).substring(with: match!.range)
+            let num = UInt8(byteString, radix: 16)!
+            data.append(num)
+        }
+        return data
+    }
+}
+
+extension Data {
+    var hexString: String {
+        return self.map { String(format: "%02x", $0) }.joined()
+    }
+}
+
+// Function to convert hex string to word array (equivalent to hexToWordArray)
+func hexToData(_ hexString: String) -> Data {
+    return hexString.hexadecimal() ?? Data()
+}
+
+// Function to generate secret key (equivalent to genSecretKey)
+func genSecretKey(keyComp1: Data, keyComp2: Data, keyComp3: Data) -> Data {
+    // Note: Implement the same logic as in your JavaScript genSecretKey function
+    // This is a placeholder - you'll need to implement the exact logic from your JS code
+    var result = Data()
+    
+    // Assuming genSecretKey performs some operation on the three components
+    // For example, if it's concatenating them:
+    result.append(keyComp1)
+    result.append(keyComp2)
+    result.append(keyComp3)
+    
+    // If your original function does something else, replace this code accordingly
+    return result
+}
+
+// Main 3DES decryption function
+func decrypt3DES(cipherText: String, keyComp1: String, keyComp2: String, keyComp3: String) -> String? {
+    // Convert hex components to data
+    let comp1 = hexToData(keyComp1)
+    let comp2 = hexToData(keyComp2)
+    let comp3 = hexToData(keyComp3)
+    
+    // Generate key
+    let key = genSecretKey(keyComp1: comp1, keyComp2: comp2, keyComp3: comp3)
+    
+    // Create IV (all zeros)
+    let iv = hexToData("0000000000000000")
+    
+    // Convert ciphertext from Base64 to Data
+    guard let cipherData = Data(base64Encoded: cipherText) else {
+        print("Failed to decode base64 cipher text")
+        return nil
+    }
+    
+    // Prepare output buffer
+    let bufferSize = cipherData.count + kCCBlockSize3DES
+    var decryptedData = Data(count: bufferSize)
+    var decryptedLength: size_t = 0
+    
+    // Perform 3DES decryption
+    let cryptStatus = decryptedData.withUnsafeMutableBytes { decryptedBytes in
+        cipherData.withUnsafeBytes { dataBytes in
+            key.withUnsafeBytes { keyBytes in
+                iv.withUnsafeBytes { ivBytes in
+                    CCCrypt(
+                        CCOperation(kCCDecrypt),
+                        CCAlgorithm(kCCAlgorithm3DES),
+                        CCOptions(kCCOptionPKCS7Padding),
+                        keyBytes.baseAddress, key.count,
+                        ivBytes.baseAddress,
+                        dataBytes.baseAddress, cipherData.count,
+                        decryptedBytes.baseAddress, bufferSize,
+                        &decryptedLength
+                    )
+                }
+            }
+        }
+    }
+    
+    // Check if decryption was successful
+    if cryptStatus == kCCSuccess {
+        // Trim the decrypted data to the actual length
+        decryptedData.count = decryptedLength
+        
+        // Convert to string
+        if let decryptedString = String(data: decryptedData, encoding: .utf8) {
+            return decryptedString
+        } else {
+            print("Failed to convert decrypted data to string")
+            return nil
+        }
+    } else {
+        print("Error during decryption: \(cryptStatus)")
+        return nil
+    }
+}
