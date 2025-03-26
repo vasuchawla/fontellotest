@@ -1,3 +1,28 @@
+function extractAlias(qrString) {
+    // Define a regex pattern to capture the alias
+    const aliasPattern = /0202(\d+)([A-Z0-9@]+)/;
+    
+    // Execute regex match
+    const match = qrString.match(aliasPattern);
+    
+    // Return alias if found, otherwise return null
+    return match ? match[2] : null;
+}
+
+// Example QR string
+const qrString = "00020101021127280108979080020212RAJAT12@BMCT5911RAJATBHATIA63042e21";
+
+// Extract alias
+const alias = extractAlias(qrString);
+console.log("Extracted Alias:", alias);
+
+
+
+
+
+
+
+
 import Foundation
 import CommonCrypto
 
