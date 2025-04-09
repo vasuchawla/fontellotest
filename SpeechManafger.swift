@@ -1,98 +1,8 @@
-import SwiftUI
-
-public struct SplashScreenView: View {
-    @State private var isActive = false
-
-    public init() {}
-
-    public var body: some View {
-        ZStack {
-            if isActive {
-                ComponentListView() // 👈 Your main component screen
-            } else {
-                VStack(spacing: 20) {
-                    Image(systemName: "sparkles")
-                        .resizable()
-                        .frame(width: 100, height: 100)
-                        .foregroundColor(.blue)
-
-                    Text("Playground UI")
-                        .font(.title2)
-                        .foregroundColor(.secondary)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.white)
-                .ignoresSafeArea()
-                .onAppear {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                        withAnimation {
-                            isActive = true
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-
-struct ContentView: View {
-    var body: some View {
-        SplashScreenView() // 👈 Start with splash
-    }
-}
-
-
-
-
-
-@State private var scale: CGFloat = 0.6
-
-...
-
-.onAppear {
-    withAnimation(.easeInOut(duration: 1.0)) {
-        scale = 1.0
-    }
-
-    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-        withAnimation {
-            isActive = true
-        }
-    }
-}
-
-...
-
-Image(systemName: "sparkles")
-    .resizable()
-    .frame(width: 100, height: 100)
-    .scaleEffect(scale)
-
-
-
-
-
-
-
-
-@main
-struct MyApp: App {
-    var body: some Scene {
-        WindowGroup {
-            SplashScreenView()
-        }
-    }
-}
-
-
-
 
 import Foundation
-import Speech
-<key>NSSpeechRecognitionUsageDescription</key>
-<string>We use your voice to help you search components.</string>
 
+import Speech
+import AVFoundation
 
 class SpeechManager: ObservableObject {
     private let recognizer = SFSpeechRecognizer()
@@ -105,10 +15,28 @@ class SpeechManager: ObservableObject {
 
     func startRecording() {
         SFSpeechRecognizer.requestAuthorization { authStatus in
-            guard authStatus == .authorized else { return }
+            guard authStatus == .authorized else {
+                print("Speech recognition not authorized")
+                return
+            }
+
+            DispatchQueue.main.async {
+                self.beginRecording()
+            }
+        }
+    }
+
+    private func beginRecording() {
+        // 💡 Step 1: Configure audio session
+        let audioSession = AVAudioSession.sharedInstance()
+        do {
+            try audioSession.setCategory(.record, mode: .measurement, options: .duckOthers)
+            try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+        } catch {
+            print("❌ Failed to set up audio session: \(error.localizedDescription)")
+            return
         }
 
-        let node = audioEngine.inputNode
         request = SFSpeechAudioBufferRecognitionRequest()
         guard let request = request else { return }
 
@@ -120,18 +48,26 @@ class SpeechManager: ObservableObject {
                     self.transcript = result.bestTranscription.formattedString
                 }
             }
+
+            if let error = error {
+                print("❌ Recognition error: \(error.localizedDescription)")
+            }
         }
 
-        let format = node.outputFormat(forBus: 0)
-        node.installTap(onBus: 0, bufferSize: 1024, format: format) { buffer, _ in
-            request.append(buffer)
+        let inputNode = audioEngine.inputNode
+        let format = inputNode.outputFormat(forBus: 0)
+
+        inputNode.removeTap(onBus: 0) // Ensure no previous tap
+        inputNode.installTap(onBus: 0, bufferSize: 1024, format: format) { buffer, _ in
+            self.request?.append(buffer)
         }
 
         audioEngine.prepare()
-        try? audioEngine.start()
-
-        DispatchQueue.main.async {
-            self.isRecording = true
+        do {
+            try audioEngine.start()
+            isRecording = true
+        } catch {
+            print("❌ Failed to start audioEngine: \(error.localizedDescription)")
         }
     }
 
@@ -140,8 +76,8 @@ class SpeechManager: ObservableObject {
         request?.endAudio()
         task?.cancel()
 
-        DispatchQueue.main.async {
-            self.isRecording = false
-        }
+        audioEngine.inputNode.removeTap(onBus: 0)
+
+        isRecording = false
     }
 }
