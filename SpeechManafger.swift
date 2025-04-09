@@ -1,6 +1,8 @@
 
 import Foundation
 import Speech
+<key>NSSpeechRecognitionUsageDescription</key>
+<string>We use your voice to help you search components.</string>
 
 
 class SpeechManager: ObservableObject {
