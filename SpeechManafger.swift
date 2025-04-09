@@ -1,34 +1,80 @@
-struct SplashScreenView: View {
+import SwiftUI
+
+public struct SplashScreenView: View {
     @State private var isActive = false
 
-    var body: some View {
-        if isActive {
-            MainAppView() // Your actual app
-        } else {
-            ZStack {
-                Color.white
-                    .ignoresSafeArea()
+    public init() {}
 
+    public var body: some View {
+        ZStack {
+            if isActive {
+                ComponentListView() // 👈 Your main component screen
+            } else {
                 VStack(spacing: 20) {
-                    Image(systemName: "swift") // Replace with your logo
+                    Image(systemName: "sparkles")
                         .resizable()
                         .frame(width: 100, height: 100)
-                    Text("Welcome to MyApp")
-                        .font(.headline)
-                        .foregroundColor(.gray)
+                        .foregroundColor(.blue)
+
+                    Text("Playground UI")
+                        .font(.title2)
+                        .foregroundColor(.secondary)
                 }
-            }
-            .onAppear {
-                // Delay for 2 seconds
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                    withAnimation {
-                        isActive = true
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.white)
+                .ignoresSafeArea()
+                .onAppear {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                        withAnimation {
+                            isActive = true
+                        }
                     }
                 }
             }
         }
     }
 }
+
+
+struct ContentView: View {
+    var body: some View {
+        SplashScreenView() // 👈 Start with splash
+    }
+}
+
+
+
+
+
+@State private var scale: CGFloat = 0.6
+
+...
+
+.onAppear {
+    withAnimation(.easeInOut(duration: 1.0)) {
+        scale = 1.0
+    }
+
+    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+        withAnimation {
+            isActive = true
+        }
+    }
+}
+
+...
+
+Image(systemName: "sparkles")
+    .resizable()
+    .frame(width: 100, height: 100)
+    .scaleEffect(scale)
+
+
+
+
+
+
+
 
 @main
 struct MyApp: App {
