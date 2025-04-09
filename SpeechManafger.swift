@@ -1,3 +1,46 @@
+struct SplashScreenView: View {
+    @State private var isActive = false
+
+    var body: some View {
+        if isActive {
+            MainAppView() // Your actual app
+        } else {
+            ZStack {
+                Color.white
+                    .ignoresSafeArea()
+
+                VStack(spacing: 20) {
+                    Image(systemName: "swift") // Replace with your logo
+                        .resizable()
+                        .frame(width: 100, height: 100)
+                    Text("Welcome to MyApp")
+                        .font(.headline)
+                        .foregroundColor(.gray)
+                }
+            }
+            .onAppear {
+                // Delay for 2 seconds
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    withAnimation {
+                        isActive = true
+                    }
+                }
+            }
+        }
+    }
+}
+
+@main
+struct MyApp: App {
+    var body: some Scene {
+        WindowGroup {
+            SplashScreenView()
+        }
+    }
+}
+
+
+
 
 import Foundation
 import Speech
