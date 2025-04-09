@@ -1,3 +1,8 @@
+INFOPLIST_KEY_NSMicrophoneUsageDescription = "Need Mic for Speak Search";
+INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Need Speach recog for speak search";
+
+
+
 
 import Foundation
 
