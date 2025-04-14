@@ -1,0 +1,38 @@
+
+            .accessibilityLabel(Text(placeholder))
+            .accessibilityValue(Text(text))
+            .accessibilityHint(Text("Enter your \(placeholder.lowercased())"))
+            .accessibilityIdentifier("textfield_\(placeholder.lowercased())")
+
+
+
+
+        .accessibilityLabel(Text(title))
+        .accessibilityHint(Text("Double tap to activate"))
+        .accessibilityAddTraits(.isButton)
+        .accessibilityIdentifier("myButton_\(title.lowercased())") 
+
+
+
+extension View {
+    func accessibility(label: String, hint: String? = nil, id: String? = nil) -> some View {
+        self
+            .accessibilityLabel(Text(label))
+            .accessibilityHint(Text(hint ?? ""))
+            .accessibilityIdentifier(id ?? label.lowercased().replacingOccurrences(of: " ", with: "_"))
+    }
+}
+
+
+  .accessibility(label: "Login", hint: "Double tap to login", id: "btn_login")
+
+
+
+
+ Testing Accessibility
+Use VoiceOver (Settings > Accessibility > VoiceOver)
+
+Use Xcode's Accessibility Inspector
+
+Run UI Tests with accessibilityIdentifier
+
