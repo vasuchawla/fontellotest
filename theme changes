@@ -1,0 +1,54 @@
+import SwiftUI
+
+extension Color {
+    init(hex: String) {
+        let scanner = Scanner(string: hex)
+        _ = scanner.scanString("#")
+        var rgb: UInt64 = 0
+        scanner.scanHexInt64(&rgb)
+
+        let r = Double((rgb >> 16) & 0xFF) / 255
+        let g = Double((rgb >> 8) & 0xFF) / 255
+        let b = Double(rgb & 0xFF) / 255
+
+        self.init(red: r, green: g, blue: b)
+    }
+}
+
+struct UITheme {
+    static func primary(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? Color(hex: "#60A5FA") : Color(hex: "#1D4ED8")
+    }
+
+    static func secondary(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? Color(hex: "#D1D5DB") : Color(hex: "#6B7280")
+    }
+
+    static func success(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? Color(hex: "#6EE7B7") : Color(hex: "#10B981")
+    }
+
+    static func danger(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? Color(hex: "#FCA5A5") : Color(hex: "#EF4444")
+    }
+
+    static func warning(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? Color(hex: "#FCD34D") : Color(hex: "#F59E0B")
+    }
+
+    static func info(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? Color(hex: "#93C5FD") : Color(hex: "#3B82F6")
+    }
+
+    static func textPrimary(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? Color(hex: "#F9FAFB") : Color(hex: "#111827")
+    }
+
+    static func textSecondary(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? Color(hex: "#D1D5DB") : Color(hex: "#6B7280")
+    }
+
+    static func background(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? Color(hex: "#111827") : Color(hex: "#FFFFFF")
+    }
+}
