@@ -1,2 +1,8 @@
 ISBdIefEEUetlBl25bMzDMfYXNM=
 JSZWIjjapZeVVdO/SkBdAWSfLnIOgWdn6dnIxhNM264=
+
+
+
+
+ encryptCardData("1234")
+encryptCardData("5487690500035463")
