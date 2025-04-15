@@ -1,0 +1,273 @@
+struct UITheme {
+    static func primaryColor(for scheme: ColorScheme) -> Color {
+        return scheme == .dark ? Color(hex: "#FF6B6B") : Color(hex: "#1E90FF")
+    }
+
+    // etc...
+}
+
+
+
+
+enum ButtonVariant {
+    case primary
+    case secondary
+    case danger
+
+    func backgroundColor(for scheme: ColorScheme) -> Color {
+        switch self {
+        case .primary:
+            return UITheme.primaryColor(for: scheme)
+        case .secondary:
+            return UITheme.secondaryColor(for: scheme)
+        case .danger:
+            return UITheme.dangerColor(for: scheme)
+        }
+    }
+}
+
+when using button
+@Environment(\.colorScheme) var colorScheme
+
+        .background(ButtonVariant.primary.backgroundColor(for: colorScheme))
+
+
+
+
+
+
+
+
+
+
+  a) In ComponentListView:
+swift
+Copy
+Edit
+
+
+
+
+
+
+  import SwiftUI
+
+struct ComponentListView: View {
+    let components: [Component]
+    @AppStorage("selectedColorScheme") var selectedColorScheme: String = "system"
+
+    var body: some View {
+        NavigationView {
+            List {
+                ForEach(components, id: \.name) { component in
+                    NavigationLink(destination: component.view) {
+                        Text(component.name)
+                    }
+                }
+
+                // Add theme option at the bottom
+                Section {
+                    NavigationLink("Theme Settings") {
+                        ThemeSettingsView()
+                    }
+                }
+            }
+            .navigationTitle("Components")
+        }
+    }
+}
+
+
+
+
+
+b) Theme Selection View
+swift
+Copy
+Edit
+
+
+
+
+
+
+  struct ThemeSettingsView: View {
+    @AppStorage("selectedColorScheme") var selectedColorScheme: String = "system"
+
+    var body: some View {
+        Form {
+            Picker("App Theme", selection: $selectedColorScheme) {
+                Text("System").tag("system")
+                Text("Light").tag("light")
+                Text("Dark").tag("dark")
+            }
+            .pickerStyle(.segmented)
+        }
+        .navigationTitle("Theme")
+    }
+}
+
+
+
+
+
+
+
+c) Apply Theme App-Wide
+In your @main App struct:
+
+
+  @main
+struct YourApp: App {
+    @AppStorage("selectedColorScheme") var selectedColorScheme: String = "system"
+
+    var body: some Scene {
+        WindowGroup {
+            ComponentListView()
+                .preferredColorScheme(
+                    selectedColorScheme == "light" ? .light :
+                    selectedColorScheme == "dark" ? .dark : nil
+                )
+        }
+    }
+}
+
+
+
+
+
+
+ - - - - - - -
+
+
+
+   import SwiftUI
+
+enum AppTheme: String, CaseIterable, Identifiable {
+    case system, light, dark
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .system: return "System"
+        case .light: return "Light"
+        case .dark: return "Dark"
+        }
+    }
+
+    var description: String {
+        switch self {
+        case .system: return "Match your device setting"
+        case .light: return "Bright and clear"
+        case .dark: return "Easy on the eyes"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .system: return "gearshape"
+        case .light: return "sun.max.fill"
+        case .dark: return "moon.fill"
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+struct ThemeSettingsView: View {
+    @AppStorage("selectedColorScheme") private var selectedColorScheme = "system"
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 16) {
+                ForEach(AppTheme.allCases) { theme in
+                    Button(action: {
+                        selectedColorScheme = theme.rawValue
+                    }) {
+                        HStack(spacing: 16) {
+                            Image(systemName: theme.icon)
+                                .font(.system(size: 28))
+                                .foregroundColor(.accentColor)
+
+                            VStack(alignment: .leading) {
+                                Text(theme.title)
+                                    .font(.headline)
+                                Text(theme.description)
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+
+                            Spacer()
+
+                            if selectedColorScheme == theme.rawValue {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(.green)
+                            }
+                        }
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color(.systemBackground))
+                                .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
+                        )
+                    }
+                }
+            }
+            .padding()
+        }
+        .navigationTitle("Theme")
+        .background(Color(.systemGroupedBackground).edgesIgnoringSafeArea(.all))
+    }
+}
+
+
+
+
+
+
+
+
+
+PlaybookView(
+    store: store,
+    configuration: .init(
+        showsThemeToggle: false // hides the toggle
+    )
+)
+
+
+
+
+
+
+
+  PlaybookView(
+    store: store,
+    colorScheme: appTheme == .dark ? .dark : .light
+)
+
+
+
+
+
+
+  @AppStorage("selectedTheme") private var selectedTheme: String = "system"
+
+PlaybookView(
+    store: store,
+    colorScheme: selectedTheme == "dark" ? .dark : selectedTheme == "light" ? .light : nil
+)
+
+
+
+
+
+
+  
