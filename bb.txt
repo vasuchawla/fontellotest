@@ -14,3 +14,7 @@ encryptCardData("5487690500035463")
 
 🔒 Encrypted "5487690500035463" → **BvLh6tyB6XhPQI7myyFyOYd7yMU=**
 
+
+
+Encrypted (1234): WkG8jtPb7MA=
+Encrypted (5487690500035463): BvLh6tyB6XhPQI7myyFyOYd7yMU=
