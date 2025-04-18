@@ -6,3 +6,11 @@ JSZWIjjapZeVVdO/SkBdAWSfLnIOgWdn6dnIxhNM264=
 
  encryptCardData("1234")
 encryptCardData("5487690500035463")
+
+
+
+
+🔒 Encrypted "1234" → **AvTq6RBA2qE=**
+
+🔒 Encrypted "5487690500035463" → **BvLh6tyB6XhPQI7myyFyOYd7yMU=**
+
