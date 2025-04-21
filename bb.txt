@@ -22,3 +22,10 @@ Encrypted (5487690500035463): BvLh6tyB6XhPQI7myyFyOYd7yMU=
 
 Encrypted (1234): ISBdIefEEUc=
 Encrypted (5487690500035463): JSZWIjjapZeVVdO/SkBdAWSfLnI=
+
+
+
+udid: 00008140-0004394E36B8801C
+
+card to encrypt: 5487690500035463
+
