@@ -1,3 +1,101 @@
+import Foundation
+import CommonCrypto
+import CryptoKit
+
+func encryptCardData(_ cardData: String) -> String? {
+    do {
+        
+        // 1. Create initialization vector
+           let ivBytes: [UInt8] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+           let iv = Data(ivBytes)
+
+           // 2 & 3. Generate secret key using PBKDF2
+           let password = "H1kUL7JU2ZOGwXP9ghdDdW9C5RF9VQMU"
+           let saltString = "z9fe6WhB7WGLyroyNX6PnHSqQT6jZGKe"
+
+           guard let salt = saltString.data(using: .utf8) else {
+               return nil
+           }
+
+           // Create a derived key using PBKDF2
+           let derivedKey = try deriveKey(password: password, salt: salt, rounds: 65536, keyLength: 32)
+           
+           // 4 & 5. Encrypt using AES-GCM with the derived key and IV
+           guard let cardDataBytes = cardData.data(using: .utf8) else {
+               return nil
+           }
+           
+           // Create a correctly formatted AES-GCM nonce
+           let nonce = try AES.GCM.Nonce(data: iv)
+           let symmetricKey = SymmetricKey(data: derivedKey)
+           let sealedBox = try AES.GCM.seal(cardDataBytes, using: symmetricKey, nonce: nonce)
+
+        let combined =  sealedBox.ciphertext + sealedBox.tag
+           let encryptedBase64 = combined.base64EncodedString()
+        //   print("Encrypted (\(cardData)): \(encryptedBase64)")
+        
+        
+        return encryptedBase64
+
+    } catch {
+        print("Encryption error: \(error.localizedDescription)")
+        return nil
+    }
+}
+
+// PBKDF2 key derivation
+private func deriveKey(password: String, salt: Data, rounds: Int, keyLength: Int) throws -> Data {
+    guard let passwordData = password.data(using: .utf8) else {
+        throw NSError(domain: "AESGCMEncryption", code: -1, userInfo: [NSLocalizedDescriptionKey: "Unable to convert password to data"])
+    }
+
+    var derivedKeyData = Data(count: keyLength)
+
+    let derivationStatus = derivedKeyData.withUnsafeMutableBytes { derivedKeyBytes in
+        salt.withUnsafeBytes { saltBytes in
+            passwordData.withUnsafeBytes { passwordBytes in
+                CCKeyDerivationPBKDF(
+                    CCPBKDFAlgorithm(kCCPBKDF2),
+                    passwordBytes.baseAddress?.assumingMemoryBound(to: Int8.self),
+                    passwordData.count,
+                    saltBytes.baseAddress?.assumingMemoryBound(to: Int8.self),
+                    salt.count,
+                    CCPseudoRandomAlgorithm(kCCPRFHmacAlgSHA256),
+                    UInt32(rounds),
+                    derivedKeyBytes.baseAddress?.assumingMemoryBound(to: UInt8.self),
+                    keyLength
+                )
+            }
+        }
+    }
+
+    guard derivationStatus == kCCSuccess else {
+        throw NSError(domain: "AESGCMEncryption", code: Int(derivationStatus), userInfo: [NSLocalizedDescriptionKey: "Unable to derive key"])
+    }
+
+    return derivedKeyData
+}
+
+print( encryptCardData("1234"))
+print(  encryptCardData("5194540000001586"))
+print( encryptCardData("5487690500035463"))
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ISBdIefEEUetlBl25bMzDMfYXNM=
 JSZWIjjapZeVVdO/SkBdAWSfLnIOgWdn6dnIxhNM264=
 
