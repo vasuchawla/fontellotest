@@ -1,0 +1,640 @@
+diff --git a/node_modules/@wavemaker/app-rn-runtime/actions/notification-action.js b/node_modules/@wavemaker/app-rn-runtime/actions/notification-action.js
+index 946bb48..e2d3f64 100644
+--- a/node_modules/@wavemaker/app-rn-runtime/actions/notification-action.js
++++ b/node_modules/@wavemaker/app-rn-runtime/actions/notification-action.js
+@@ -15,6 +15,7 @@ export class NotificationAction extends BaseAction {
+     const params = this.config.paramProvider();
+     const o = {};
+     o.text = options.message || params.text;
++    o.title = options.title || null;
+     o.type = ((_options$class = options.class) === null || _options$class === void 0 ? void 0 : _options$class.toLowerCase()) || ((_params$class = params.class) === null || _params$class === void 0 ? void 0 : _params$class.toLowerCase());
+     o.onClose = () => {
+       this.config.onClose && this.config.onClose(this);
+diff --git a/node_modules/@wavemaker/app-rn-runtime/components/advanced/network-info-toaster/network-info-toaster.component.js b/node_modules/@wavemaker/app-rn-runtime/components/advanced/network-info-toaster/network-info-toaster.component.js
+index 9c400b8..a5bb37b 100644
+--- a/node_modules/@wavemaker/app-rn-runtime/components/advanced/network-info-toaster/network-info-toaster.component.js
++++ b/node_modules/@wavemaker/app-rn-runtime/components/advanced/network-info-toaster/network-info-toaster.component.js
+@@ -85,6 +85,7 @@ export default class WmNetworkInfoToaster extends BaseComponent {
+         style: this.styles.actionText
+       }, this.props.appLocale.messages.LABEL_HIDE_NETWORK_INFO)));
+     }
++    return false;
+     return /*#__PURE__*/React.createElement(View, {
+       style: this.styles.root
+     }, this._background, /*#__PURE__*/React.createElement(Text, _extends({}, this.getTestPropsForLabel('msg'), {
+diff --git a/node_modules/@wavemaker/app-rn-runtime/components/basic/search/search.component.js b/node_modules/@wavemaker/app-rn-runtime/components/basic/search/search.component.js
+index 871bf31..81ab191 100644
+--- a/node_modules/@wavemaker/app-rn-runtime/components/basic/search/search.component.js
++++ b/node_modules/@wavemaker/app-rn-runtime/components/basic/search/search.component.js
+@@ -310,13 +310,19 @@ export default class WmSearch extends BaseDatasetComponent {
+         placeholderTextColor: this.styles.placeholderText.color,
+         placeholder: props.placeholder || 'Search',
+         autoFocus: props.autofocus,
++        autofill:false,
+         editable: props.disabled || props.readonly ? false : true,
+         onChangeText: this.onChange.bind(this),
+         onChange: this.invokeChange.bind(this),
+         onFocus: this.onFocus.bind(this),
++        autoComplete: props.autocomplete ? 'username' : 'off',
+         onLayout: e => {
+           this.searchInputWidth = e.nativeEvent.layout.width;
+         },
++        contextMenuHidden : true,
++        caretHidden:true ,
++        //updateon:'default',
++        allowContentSelection: props.allowPasting || false,
+         onBlur: this.onBlur.bind(this)
+       }, opts)), props.showclear && this.state.props.query ? /*#__PURE__*/React.createElement(WmButton, {
+         onTap: this.clearSearch.bind(this),
+diff --git a/node_modules/@wavemaker/app-rn-runtime/components/basic/spinner/spinner.component.js b/node_modules/@wavemaker/app-rn-runtime/components/basic/spinner/spinner.component.js
+index b6edb75..ef4d927 100644
+--- a/node_modules/@wavemaker/app-rn-runtime/components/basic/spinner/spinner.component.js
++++ b/node_modules/@wavemaker/app-rn-runtime/components/basic/spinner/spinner.component.js
+@@ -58,9 +58,9 @@ export default class WmSpinner extends BaseComponent {
+     return [color.red() / 255, color.green() / 255, color.blue() / 255, 1];
+   }
+   addClasstoLottie(lottiePath) {
+-    let primaryColor = Color(ThemeVariables.INSTANCE.primaryColor);
+-    let colors = [this.toRgbArray(primaryColor), this.toRgbArray(primaryColor.darken(0.2)), this.toRgbArray(primaryColor.darken(0.4)), this.toRgbArray(primaryColor.darken(0.6)), this.toRgbArray(primaryColor.darken(0.8))];
+-    return this.recursiveSearch(lottiePath.json, lottiePath.loader == 'circleSpinner' ? [colors[0]] : colors);
++    // let primaryColor = Color(ThemeVariables.INSTANCE.primaryColor);
++    // let colors = [this.toRgbArray(primaryColor), this.toRgbArray(primaryColor.darken(0.2)), this.toRgbArray(primaryColor.darken(0.4)), this.toRgbArray(primaryColor.darken(0.6)), this.toRgbArray(primaryColor.darken(0.8))];
++    return lottiePath.json;//this.recursiveSearch(lottiePath.json, lottiePath.loader == 'circleSpinner' ? [colors[0]] : colors);
+   }
+   prepareLottie(props) {
+     var _Lottie;
+diff --git a/node_modules/@wavemaker/app-rn-runtime/components/container/accordion/accordion.component.js b/node_modules/@wavemaker/app-rn-runtime/components/container/accordion/accordion.component.js
+index 693b357..184e9d8 100644
+--- a/node_modules/@wavemaker/app-rn-runtime/components/container/accordion/accordion.component.js
++++ b/node_modules/@wavemaker/app-rn-runtime/components/container/accordion/accordion.component.js
+@@ -56,7 +56,7 @@ export default class WmAccordion extends BaseComponent {
+     }, this.getTestProps('badge' + index)), widgetProps.badgevalue) : null;
+     let iconclass = null;
+     if (useChevron) {
+-      iconclass = isExpanded ? 'wi wi-chevron-down' : 'wi wi-chevron-up';
++      iconclass = isExpanded ? 'wi wi-chevron-up' : 'wi wi-chevron-down';
+     } else {
+       iconclass = isExpanded ? 'wi wi-minus' : 'wi wi-plus';
+     }
+diff --git a/node_modules/@wavemaker/app-rn-runtime/components/data/list/list.component.js b/node_modules/@wavemaker/app-rn-runtime/components/data/list/list.component.js
+index 989947e..d68a7f1 100644
+--- a/node_modules/@wavemaker/app-rn-runtime/components/data/list/list.component.js
++++ b/node_modules/@wavemaker/app-rn-runtime/components/data/list/list.component.js
+@@ -4,14 +4,17 @@ function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typ
+ function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+ import React from 'react';
+ import { ActivityIndicator, SectionList, Text, View, FlatList } from 'react-native';
+-import { isArray, isEmpty, isNil, isNumber } from 'lodash-es';
++import { isArray, isEmpty, isNil, round, isNumber } from 'lodash-es';
+ import { BaseComponent, BaseComponentState } from '@wavemaker/app-rn-runtime/core/base.component';
+ import { getGroupedData, isDefined } from "@wavemaker/app-rn-runtime/core/utils";
+ import { Tappable } from '@wavemaker/app-rn-runtime/core/tappable.component';
+ import { DefaultKeyExtractor } from '@wavemaker/app-rn-runtime/core/key.extractor';
+ import WmLabel from '@wavemaker/app-rn-runtime/components/basic/label/label.component';
++import {FlatList as FlatListReanimated} from 'react-native-gesture-handler';
+ import WmIcon from '@wavemaker/app-rn-runtime/components/basic/icon/icon.component';
+ import WmListProps from './list.props';
++import WmContainer from '@wavemaker/app-rn-runtime/components/container/container.component';
++
+ import { DEFAULT_CLASS } from './list.styles';
+ export class WmListState extends BaseComponentState {
+   constructor() {
+@@ -73,11 +76,50 @@ export default class WmList extends BaseComponent {
+         },
+         selectedindex: $index
+       }, () => {
+-        this.invokeEventCallback('onSelect', [this.proxy, $item]);
++        this.invokeEventCallback('onSelect', [this.proxy, $item, $index]);
+         triggerTapEvent && this.invokeEventCallback('onTap', [null, this.proxy]);
+       });
+     }
+   }
++
++  // this is duplicate of onSelect but a new name was needed to avoid calling prop function directly bypassing inner function
++  onSelectCustom($item, $index) {
++    let triggerTapEvent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
++    const props = this.state.props;
++    let selectedItem = null;
++    if (props.disableitem !== true && (typeof props.disableitem !== 'function' || !props.disableitem($item, $index))) {
++      if (props.multiselect) {
++        selectedItem = [...(props.selecteditem || [])];
++        const index = selectedItem.indexOf($item);
++        if (index < 0) {
++          if (!props.selectionlimit || props.selectionlimit < 0 || selectedItem.length < props.selectionlimit) {
++            selectedItem.push($item);
++          } else {
++            this.invokeEventCallback('onSelectionlimitexceed', [null, this]);
++          }
++        } else {
++          selectedItem.splice(index, 1);
++        }
++      } else {
++        if (props.selecteditem === $item) {
++          selectedItem = null;
++        } else {
++          selectedItem = $item;
++        }
++      }
++      this.selectedItemWidgets = this.itemWidgets[$index];
++      this.updateState({
++        props: {
++          selecteditem: selectedItem
++        },
++        selectedindex: $index
++      }, () => {
++        this.invokeEventCallback('onSelect', [this.proxy, $item, $index]);
++        triggerTapEvent && this.invokeEventCallback('onTap', [null, this.proxy]);
++      });
++    }
++  }
++
+   get loadDataOnDemand() {
+     const navigation = this.state.props.navigation;
+     return navigation === 'Scroll' || navigation === 'On-Demand';
+@@ -285,22 +327,32 @@ export default class WmList extends BaseComponent {
+   renderItem(item, index, props) {
+     const cols = this.getNoOfColumns();
+     const isHorizontal = props.direction === 'horizontal';
+-    return index < this.state.maxRecordsToShow || isHorizontal ? /*#__PURE__*/React.createElement(View, {
+-      style: [this.styles.item, props.itemclass ? this.theme.getStyle(props.itemclass(item, index)) : null, this.isSelected(item) ? this.styles.selectedItem : {}]
+-    }, /*#__PURE__*/React.createElement(Tappable, _extends({}, this.getTestPropsForAction(`item${index}`), {
++    return /*#__PURE__*/React.createElement(Tappable, _extends({}, this.getTestPropsForAction(`item${index}`), {
+       onTap: () => this.onSelect(item, index, true),
+       onLongTap: () => this.invokeEventCallback('onLongtap', [null, this.proxy]),
+       onDoubleTap: () => this.invokeEventCallback('onDoubletap', [null, this.proxy]),
+       styles: [cols ? {
+-        width: '100%'
++        width: round(100 / cols, 2) + '%'
+       } : null, cols || isHorizontal ? {
+-        paddingRight: (isNil(this.styles.item.marginRight) ? this.styles.item.margin : this.styles.item.marginRight) || 4
++        paddingRight: (isNil(this.styles.item.marginRight) ? this.styles.item.margin : this.styles.item.marginRight) || 0
+       } : null]
+-    }), props.renderItem(item, index, this), this.isSelected(item) ? /*#__PURE__*/React.createElement(WmIcon, {
+-      id: this.getTestId('icon' + index),
+-      iconclass: "wi wi-check-circle",
+-      styles: this.styles.selectedIcon
+-    }) : null)) : null;
++    }), /*#__PURE__*/React.createElement(View, {
++      style: [this.styles.item, { justifyContent: "center", alignItems: "center" }, props.itemclass ? this.theme.getStyle(props.itemclass(item, index)) : null, this.isSelected(item) ? this.styles.selectedItem : {}]
++    }, props.renderItem(item, index, this), this.isSelected(item) && props.showSelectedIcon ?
++
++
++      React.createElement(WmContainer, {
++        styles: props.selectedIconStyles
++      },
++  /*#__PURE__*/React.createElement(WmIcon, {
++        id: this.getTestId('icon' + index),
++        iconclass: "wi wi-check",
++        // classname:"iconListTickGreen fonticon",
++        iconsize: 16,
++        styles: { root: { paddingTop: "15%", paddingLeft: "15%", }, text: { color: "#fff" } }
++
++      })) :
++      null));
+   }
+   renderHeader(props, title) {
+     return props.groupby ? /*#__PURE__*/React.createElement(Text, {
+@@ -360,6 +412,7 @@ export default class WmList extends BaseComponent {
+     }
+   }
+   renderWithFlatList(props) {
++    let Comp = this.props.forceGestureFix ? FlatListReanimated:FlatList;
+     let isHorizontal = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+     return /*#__PURE__*/React.createElement(View, {
+       style: this.styles.root,
+@@ -367,9 +420,11 @@ export default class WmList extends BaseComponent {
+     }, !isEmpty(this.state.groupedData) ? this.state.groupedData.map((v, i) => /*#__PURE__*/React.createElement(View, {
+       style: this.styles.group,
+       key: v.key || this.keyExtractor.getKey(v, true)
+-    }, this.renderHeader(props, v.key), /*#__PURE__*/React.createElement(FlatList, _extends({
++    }, this.renderHeader(props, v.key), /*#__PURE__*/React.createElement(Comp, _extends({
+       key: props.name + '_' + (isHorizontal ? 'H' : 'V') + props.itemsperrow.xs,
+       keyExtractor: (item, i) => this.generateItemKey(item, i, props),
++      showsHorizontalScrollIndicator:false,
++      showsVerticalScrollIndicator:false,
+       scrollEnabled: isHorizontal,
+       horizontal: isHorizontal,
+       data: isEmpty(v.data[0]) ? [] : v.data,
+diff --git a/node_modules/@wavemaker/app-rn-runtime/components/device/barcodescanner/barcodescanner.component.js b/node_modules/@wavemaker/app-rn-runtime/components/device/barcodescanner/barcodescanner.component.js
+index 9515831..b62c681 100644
+--- a/node_modules/@wavemaker/app-rn-runtime/components/device/barcodescanner/barcodescanner.component.js
++++ b/node_modules/@wavemaker/app-rn-runtime/components/device/barcodescanner/barcodescanner.component.js
+@@ -26,6 +26,8 @@ export default class WmBarcodescanner extends BaseComponent {
+       }, () => {
+         this.invokeEventCallback('onSuccess', [null, this.proxy]);
+       });
++    }).catch(err=>{
++      this.invokeEventCallback('onError', [null, err]);
+     });
+   }
+   renderWidget(props) {
+diff --git a/node_modules/@wavemaker/app-rn-runtime/components/dialogs/dialogcontent/dialogcontent.component.js b/node_modules/@wavemaker/app-rn-runtime/components/dialogs/dialogcontent/dialogcontent.component.js
+index 067efb5..cd40e20 100644
+--- a/node_modules/@wavemaker/app-rn-runtime/components/dialogs/dialogcontent/dialogcontent.component.js
++++ b/node_modules/@wavemaker/app-rn-runtime/components/dialogs/dialogcontent/dialogcontent.component.js
+@@ -1,5 +1,5 @@
+ import React from 'react';
+-import { ScrollView } from 'react-native';
++import { KeyboardAvoidingView, ScrollView,View,  TouchableWithoutFeedback, Platform } from 'react-native';
+ import { BaseComponent, BaseComponentState } from '@wavemaker/app-rn-runtime/core/base.component';
+ import WmDialogcontentProps from './dialogcontent.props';
+ import { DEFAULT_CLASS } from './dialogcontent.styles';
+@@ -8,19 +8,45 @@ export default class WmDialogcontent extends BaseComponent {
+   constructor(props) {
+     super(props, DEFAULT_CLASS, new WmDialogcontentProps());
+   }
+-  renderWidget(props) {
+-    return /*#__PURE__*/React.createElement(ScrollView, {
+-      contentContainerStyle: [this.styles.root, {
+-        maxHeight: undefined
+-      }],
+-      onScroll: event => {
+-        this.notify('scroll', [event]);
+-      },
+-      scrollEventThrottle: 48,
+-      style: {
+-        maxHeight: this.styles.root.maxHeight
+-      }
++
++  renderWidgetInner2(props) {
++    return /*#__PURE__*/React.createElement(View, {
++      // nestedScrollEnabled : true,
++      // contentContainerStyle: [this.styles.root, {
++      //   maxHeight: undefined
++      // }],
++      // style: {
++      //   maxHeight: this.styles.root.maxHeight
++      // }
+     }, this._background, props.children);
+   }
++  renderWidgetInner(props) {
++    return (
++      <ScrollView
++        nestedScrollEnabled
++        contentContainerStyle={[
++          this.styles.root, {maxHeight : undefined }
++        ]}
++        onScroll={
++          (event) => {
++            this.notify('scroll', [event]);
++          }
++        }
++        scrollEventThrottle={48}
++        style={{ maxHeight: this.styles.root.maxHeight }}
++      >
++      
++        <TouchableWithoutFeedback>
++        {
++        this.renderWidgetInner2(props)
++      }
++      </TouchableWithoutFeedback>
++      </ScrollView>
++    );
++  }
++  renderWidget(props) {
++    return <KeyboardAvoidingView  behavior={"height"}
++      enabled>{this.renderWidgetInner(props)}</KeyboardAvoidingView>
++  }
+ }
+ //# sourceMappingURL=dialogcontent.component.js.map
+\ No newline at end of file
+diff --git a/node_modules/@wavemaker/app-rn-runtime/components/input/epoch/base-datetime.component.js b/node_modules/@wavemaker/app-rn-runtime/components/input/epoch/base-datetime.component.js
+index 8f0dd1f..55670b6 100644
+--- a/node_modules/@wavemaker/app-rn-runtime/components/input/epoch/base-datetime.component.js
++++ b/node_modules/@wavemaker/app-rn-runtime/components/input/epoch/base-datetime.component.js
+@@ -315,7 +315,7 @@ export default class BaseDatetime extends BaseComponent {
+     if (this.state.props.mode === 'time') {
+       return 'wm-sl-l sl-time';
+     }
+-    return 'wm-sl-l sl-calendar';
++    return 'fonticon calendaricon';
+   }
+   renderWidget(props) {
+     return this.addTouchableOpacity(props, /*#__PURE__*/React.createElement(View, {
+diff --git a/node_modules/@wavemaker/app-rn-runtime/components/input/epoch/datetime/datetime.styles.js b/node_modules/@wavemaker/app-rn-runtime/components/input/epoch/datetime/datetime.styles.js
+index 7d77d4a..bcc6f9f 100644
+--- a/node_modules/@wavemaker/app-rn-runtime/components/input/epoch/datetime/datetime.styles.js
++++ b/node_modules/@wavemaker/app-rn-runtime/components/input/epoch/datetime/datetime.styles.js
+@@ -37,7 +37,7 @@ BASE_THEME.registerStyle((themeVariables, addStyle) => {
+         alignSelf: 'center'
+       },
+       icon: {
+-        fontSize: 24
++        fontSize: 20
+       }
+     },
+     clearIcon: {
+diff --git a/node_modules/@wavemaker/app-rn-runtime/components/input/select/select.component.js b/node_modules/@wavemaker/app-rn-runtime/components/input/select/select.component.js
+index 8053a41..c47cce7 100644
+--- a/node_modules/@wavemaker/app-rn-runtime/components/input/select/select.component.js
++++ b/node_modules/@wavemaker/app-rn-runtime/components/input/select/select.component.js
+@@ -112,7 +112,7 @@ export default class WmSelect extends BaseDatasetComponent {
+         onPress: this.onPress.bind(this)
+       }), this.state.props.displayValue || props.placeholder || ' '), /*#__PURE__*/React.createElement(WmButton, {
+         styles: this.styles.arrowButton,
+-        iconclass: 'wi wi-keyboard-arrow-down',
++        iconclass: 'Dhofar icon-chevron-down',
+         onTap: this.onPress.bind(this),
+         hint: props === null || props === void 0 ? void 0 : props.hint
+       }))
+diff --git a/node_modules/@wavemaker/app-rn-runtime/components/input/slider/slider.component.js b/node_modules/@wavemaker/app-rn-runtime/components/input/slider/slider.component.js
+index 2e003ce..44244f8 100644
+--- a/node_modules/@wavemaker/app-rn-runtime/components/input/slider/slider.component.js
++++ b/node_modules/@wavemaker/app-rn-runtime/components/input/slider/slider.component.js
+@@ -81,7 +81,7 @@ export default class WmSlider extends BaseComponent {
+   onPropertyChange(name, $new, $old) {
+     switch (name) {
+       case 'datavalue':
+-        if (isNumber($new) && isNumber($old)) {
++        if (isNumber($new) ) {
+           this.invokeEventCallback('onChange', [null, this, $new, $old]);
+         }
+       case 'maxvalue':
+diff --git a/node_modules/@wavemaker/app-rn-runtime/components/input/text/text.component.js b/node_modules/@wavemaker/app-rn-runtime/components/input/text/text.component.js
+index b3799d0..a63739e 100644
+--- a/node_modules/@wavemaker/app-rn-runtime/components/input/text/text.component.js
++++ b/node_modules/@wavemaker/app-rn-runtime/components/input/text/text.component.js
+@@ -1,12 +1,14 @@
+ function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+ import React from 'react';
+-import { Platform } from 'react-native';
++import { Animated, Platform, Text, View, Keyboard} from 'react-native';
+ import WmTextProps from './text.props';
+ import { DEFAULT_CLASS } from './text.styles';
+ import { WMTextInput } from '@wavemaker/app-rn-runtime/core/components/textinput.component';
+ import { BaseInputComponent, BaseInputState } from "@wavemaker/app-rn-runtime/components/input/baseinput/baseinput.component";
+ import { isNull } from 'lodash';
++import { HelperText } from 'react-native-paper';
+ import { AccessibilityWidgetType, getAccessibilityProps } from '@wavemaker/app-rn-runtime/core/accessibility';
++import Clipboard from '@react-native-community/clipboard';
+ export class WmTextState extends BaseInputState {}
+ export default class WmText extends BaseInputComponent {
+   constructor(props) {
+@@ -21,11 +23,25 @@ export default class WmText extends BaseInputComponent {
+     return classes.join(' ');
+   }
+   renderWidget(props) {
++    let showingError = (!this.state.isValid  && this.state.errorType == 'regexp' && props.customValidationMsg) || props.showInline;
++    return (<View style={[this.styles.wrap, showingError ?{height:props.errorMsgHeight?props.errorMsgHeight:75} : {height:55}]}>
++
++      {this.renderWidgetInner(props)}
++      {
++        showingError  ? <HelperText style={{color:"#EB6F6F"}} padding='none' type="error" visible={showingError}>
++        {props.customValidationMsg}
++        </HelperText> : false
++      }
++      
++      </View>)
++  }
++  renderWidgetInner(props) {
+     var _this$state$textValue;
+     let opts = {};
+     const valueExpr = Platform.OS === 'web' ? 'value' : 'defaultValue';
+     opts[valueExpr] = ((_this$state$textValue = this.state.textValue) === null || _this$state$textValue === void 0 ? void 0 : _this$state$textValue.toString()) || '';
+     return /*#__PURE__*/React.createElement(WMTextInput, _extends({}, this.getTestPropsForInput(), getAccessibilityProps(AccessibilityWidgetType.TEXT, props), {
++      ...getAccessibilityProps(AccessibilityWidgetType.TEXT, props),
+       ref: ref => {
+         this.widgetRef = ref;
+         // @ts-ignore
+@@ -39,7 +55,9 @@ export default class WmText extends BaseInputComponent {
+       floatingLabelStyle: this.styles.floatingLabel,
+       activeFloatingLabelStyle: this.styles.activeFloatingLabel,
+       placeholderTextColor: this.styles.placeholderText.color,
+-      style: [this.styles.root, this.styles.text, this.state.isValid ? {} : this.styles.invalid],
++      // style: [this.styles.root, this.styles.text, this.state.isValid ? {} : this.styles.invalid],
++      style: [this.styles.root, this.state.isValid ? {} : this.styles.invalid, this.props.showInline ? {borderColor:"#EB6F6F",borderWidth:1} : {}, props.forceStyleForIos && Platform.OS=='ios'?props.forceStyleForIos :{}],
++
+       keyboardType: this.state.keyboardType,
+       autoComplete: props.autocomplete ? 'username' : 'off',
+       autoFocus: props.autofocus,
+@@ -48,13 +66,19 @@ export default class WmText extends BaseInputComponent {
+       displayformat: props.displayformat,
+       maskchar: props.maskchar,
+       maxLength: props.maxchars,
++      returnKeyType: this.state.keyboardType ==='numeric' ? 'done' : "enter",
+       placeholder: props.placeholder,
+       onBlur: this.onBlur.bind(this),
+       onFocus: this.onFocus.bind(this),
+       onKeyPress: this.onKeyPress.bind(this),
+       onChangeText: this.onChangeText.bind(this),
+       onChange: this.invokeChange.bind(this),
+-      allowContentSelection: this.styles.text.userSelect === 'text'
++      contextMenuHidden : true,
++      caretHidden:true ,
++      textContentType:"oneTimeCode",
++      allowContentSelection: false,// this.styles.text.userSelect === 'text'
++      autoCorrect:false,
++      spellCheck:false,   
+     }));
+   }
+ }
+diff --git a/node_modules/@wavemaker/app-rn-runtime/components/input/textarea/textarea.component.js b/node_modules/@wavemaker/app-rn-runtime/components/input/textarea/textarea.component.js
+index 90b5e65..215fb55 100644
+--- a/node_modules/@wavemaker/app-rn-runtime/components/input/textarea/textarea.component.js
++++ b/node_modules/@wavemaker/app-rn-runtime/components/input/textarea/textarea.component.js
+@@ -53,7 +53,9 @@ export default class WmTextarea extends BaseInputComponent {
+       onKeyPress: this.onKeyPress.bind(this),
+       onChangeText: this.onChangeText.bind(this),
+       onChange: this.invokeChange.bind(this),
+-      allowContentSelection: this.styles.text.userSelect === 'text'
++      allowContentSelection: false,
++      autoCorrect:false,
++      spellCheck:false,   
+     }));
+   }
+ }
+diff --git a/node_modules/@wavemaker/app-rn-runtime/components/page/tabbar/tabbar.component.js b/node_modules/@wavemaker/app-rn-runtime/components/page/tabbar/tabbar.component.js
+index 491c425..d99ef37 100644
+--- a/node_modules/@wavemaker/app-rn-runtime/components/page/tabbar/tabbar.component.js
++++ b/node_modules/@wavemaker/app-rn-runtime/components/page/tabbar/tabbar.component.js
+@@ -47,10 +47,10 @@ export default class WmTabbar extends BaseNavComponent {
+     }), /*#__PURE__*/React.createElement(View, {
+       style: [isActive && !floating ? this.styles.activeTabItem : {}]
+     }, /*#__PURE__*/React.createElement(WmIcon, {
+-      styles: this.theme.mergeStyle({}, this.styles.tabIcon, floating ? this.styles.centerHubIcon : {}, isActive ? this.styles.activeTabIcon : {}),
++      styles: this.theme.mergeStyle({}, this.styles.tabIcon, floating && item.label==="Transfer" ? this.styles.centerHubIcon : {}, isActive ? this.styles.activeTabIcon : {},floating && isActive ? this.styles.centerHubIcon : {}),
+       iconclass: item.icon
+     }))), /*#__PURE__*/React.createElement(Text, {
+-      style: [this.styles.tabLabel, floating ? this.styles.centerHubLabel : {}, isActive ? this.styles.activeTabLabel : {}]
++      style: [this.styles.tabLabel, floating && item.label==="Transfer" ? this.styles.centerHubLabel : {}, isActive ? this.styles.activeTabLabel : {}]
+     }, getDisplayLabel(item.label)));
+   }
+   onItemSelect(item, navigationService) {
+diff --git a/node_modules/@wavemaker/app-rn-runtime/core/components/textinput.component.js b/node_modules/@wavemaker/app-rn-runtime/core/components/textinput.component.js
+index 32209fd..e32777d 100644
+--- a/node_modules/@wavemaker/app-rn-runtime/core/components/textinput.component.js
++++ b/node_modules/@wavemaker/app-rn-runtime/core/components/textinput.component.js
+@@ -134,6 +134,7 @@ export const WMTextInput = /*#__PURE__*/React.forwardRef((props, ref) => {
+     }
+   }) : null, /*#__PURE__*/React.createElement(TextInput, _extends({}, props, hideInput ? opts : {}, {
+     placeholder: props.floatingLabel || displayValue ? '' : props.placeholder,
++    importantForAutoFill: "no",
+     style: [props.style, hideInput ? {
+       color: 'transparent',
+       backgroundColor: 'transparent',
+diff --git a/node_modules/@wavemaker/app-rn-runtime/core/tappable.component.js b/node_modules/@wavemaker/app-rn-runtime/core/tappable.component.js
+index bbe87b6..fb11ed7 100644
+--- a/node_modules/@wavemaker/app-rn-runtime/core/tappable.component.js
++++ b/node_modules/@wavemaker/app-rn-runtime/core/tappable.component.js
+@@ -3,7 +3,7 @@ function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key i
+ function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+ function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+ import React from "react";
+-import { Platform, View } from "react-native";
++import { Platform, View,TouchableOpacity } from "react-native";
+ import { get } from "lodash";
+ import injector from "./injector";
+ import { TouchableRipple } from "react-native-paper";
+@@ -83,7 +83,7 @@ export class Tappable extends React.Component {
+   render() {
+     const target = this.props.target;
+     if (target !== null && target !== void 0 && target.props.onTap || target !== null && target !== void 0 && target.props.onLongtap || target !== null && target !== void 0 && target.props.onDoubletap || this.props.onTap || this.props.onLongTap || this.props.onDoubleTap) {
+-      return /*#__PURE__*/React.createElement(TouchableRipple, _extends({
++      return /*#__PURE__*/React.createElement(TouchableOpacity, _extends({
+         rippleColor: this.props.rippleColor,
+         borderless: true
+       }, Platform.OS === 'android' || Platform.OS === 'web' ? {
+diff --git a/node_modules/@wavemaker/app-rn-runtime/core/utils.js b/node_modules/@wavemaker/app-rn-runtime/core/utils.js
+index 598caa7..27acca4 100644
+--- a/node_modules/@wavemaker/app-rn-runtime/core/utils.js
++++ b/node_modules/@wavemaker/app-rn-runtime/core/utils.js
+@@ -270,13 +270,13 @@ export const validateField = (props, value) => {
+       isValid: false
+     };
+   }
+-  if (value && props.mindate && new Date(props.datavalue) < moment(props.mindate).startOf('day').toDate()) {
++  if (value && props.mindate && new Date(value) < moment(props.mindate).startOf('day').toDate()) {
+     return {
+       errorType: 'mindate',
+       isValid: false
+     };
+   }
+-  if (value && props.maxdate && new Date(props.datavalue) > moment(props.maxdate).endOf('day').toDate()) {
++  if (value && props.maxdate && new Date(value) > moment(props.maxdate).endOf('day').toDate()) {
+     return {
+       errorType: 'maxdate',
+       isValid: false
+diff --git a/node_modules/@wavemaker/app-rn-runtime/runtime/App.js b/node_modules/@wavemaker/app-rn-runtime/runtime/App.js
+index 4794bf9..c5b2edd 100644
+--- a/node_modules/@wavemaker/app-rn-runtime/runtime/App.js
++++ b/node_modules/@wavemaker/app-rn-runtime/runtime/App.js
+@@ -3,7 +3,7 @@ function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typ
+ function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+ import React from 'react';
+ import axios from 'axios';
+-import { Platform, TouchableOpacity, View, StatusBar, KeyboardAvoidingView } from 'react-native';
++import { Platform, TouchableOpacity, View, StatusBar, KeyboardAvoidingView, Dimensions } from 'react-native';
+ import ProtoTypes from 'prop-types';
+ import { SafeAreaProvider, SafeAreaInsetsContext, SafeAreaView } from 'react-native-safe-area-context';
+ import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
+@@ -46,7 +46,7 @@ import ScanService from './services/device/scan-service';
+ import AppSecurityService from './services/app-security.service';
+ import { getValidJSON, parseErrors } from '@wavemaker/app-rn-runtime/variables/utils/variable.utils';
+ import MaterialCommunityIconsFont from '@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf';
+-import * as SplashScreen from 'expo-splash-screen';
++//import * as SplashScreen from 'expo-splash-screen';
+ import { WmMemo } from './memo.component';
+ //some old react libraries need this
+ View['propTypes'] = {
+@@ -115,8 +115,8 @@ export default class BaseApp extends React.Component {
+     _defineProperty(this, "lib", preparePatch(() => {
+       this.refresh();
+     }));
+-    SplashScreen.preventAutoHideAsync();
+-    setTimeout(() => SplashScreen.hideAsync(), 10000);
++    // SplashScreen.preventAutoHideAsync();
++    // setTimeout(() => SplashScreen.hideAsync(), 10000);
+     this.appConfig.app = this;
+     this.appConfig.drawer = new DrawerImpl(() => this.refresh());
+     AppSpinnerService.setDefaultOptions({
+@@ -284,7 +284,7 @@ export default class BaseApp extends React.Component {
+       this.isStarted = true;
+       this.forceUpdate();
+     }, () => {}).then(() => {
+-      SplashScreen.hideAsync().then(() => {});
++     // SplashScreen.hideAsync().then(() => {});
+     });
+     this.startUpActions.map(a => this.Actions[a] && this.Actions[a].invoke());
+   }
+@@ -337,6 +337,7 @@ export default class BaseApp extends React.Component {
+           }, o.content, o.text && /*#__PURE__*/React.createElement(WmMessage, {
+             name: "message" + i,
+             type: o.type,
++            title: o.title,
+             caption: o.text,
+             hideclose: true
+           })))));
+@@ -439,6 +440,7 @@ export default class BaseApp extends React.Component {
+         right: 0
+       };
+       return _this2.getProviders( /*#__PURE__*/React.createElement(SafeAreaView, {
++        edges: [  'middle'],
+         style: {
+           flex: 1
+         }
+diff --git a/node_modules/@wavemaker/app-rn-runtime/runtime/navigator/drawer.navigator.js b/node_modules/@wavemaker/app-rn-runtime/runtime/navigator/drawer.navigator.js
+index cc85b9c..b84c396 100644
+--- a/node_modules/@wavemaker/app-rn-runtime/runtime/navigator/drawer.navigator.js
++++ b/node_modules/@wavemaker/app-rn-runtime/runtime/navigator/drawer.navigator.js
+@@ -1,4 +1,6 @@
+ import React from 'react';
++import { Dimensions } from 'react-native';
++
+ import { createDrawerNavigator } from '@react-navigation/drawer';
+ import ThemeVariables from '@wavemaker/app-rn-runtime/styles/theme.variables';
+ const Drawer = createDrawerNavigator();
+@@ -17,7 +19,8 @@ class AppDrawerNavigator extends React.Component {
+           enabled: !this.props.hide
+         },
+         drawerStyle: {
+-          backgroundColor: ThemeVariables.INSTANCE.pageContentBgColor
++          backgroundColor: ThemeVariables.INSTANCE.pageContentBgColor,
++          width: Dimensions.get('window').width
+         }
+       }
+     }, /*#__PURE__*/React.createElement(Drawer.Screen, {
+diff --git a/node_modules/@wavemaker/app-rn-runtime/runtime/services/app-i18n.service.js b/node_modules/@wavemaker/app-rn-runtime/runtime/services/app-i18n.service.js
+index 4fe02b1..01a1730 100644
+--- a/node_modules/@wavemaker/app-rn-runtime/runtime/services/app-i18n.service.js
++++ b/node_modules/@wavemaker/app-rn-runtime/runtime/services/app-i18n.service.js
+@@ -35,6 +35,7 @@ class AppI18nService {
+   setRTL(locale) {
+     const flag = this.isRTLLocale(locale);
+     const needsRestart = !isWebPreviewMode() && I18nManager.isRTL !== flag;
++    I18nManager.allowRTL(flag);
+     I18nManager.forceRTL(flag);
+     return needsRestart;
+   }
+diff --git a/node_modules/@wavemaker/app-rn-runtime/runtime/services/device/scan-service.js b/node_modules/@wavemaker/app-rn-runtime/runtime/services/device/scan-service.js
+index 9c448ab..8c7b65c 100644
+--- a/node_modules/@wavemaker/app-rn-runtime/runtime/services/device/scan-service.js
++++ b/node_modules/@wavemaker/app-rn-runtime/runtime/services/device/scan-service.js
+@@ -108,6 +108,7 @@ export class ScanService {
+           }, /*#__PURE__*/React.createElement(TouchableOpacity, _extends({}, this.getTestProps('close_button'), {
+             onPress: () => {
+               destroy.call(this.displayManager);
++              reject('cancelled')
+             }
+           }), /*#__PURE__*/React.createElement(Ionicons, {
+             name: "close-circle",
+diff --git a/node_modules/@wavemaker/app-rn-runtime/styles/background.component.js b/node_modules/@wavemaker/app-rn-runtime/styles/background.component.js
+index 45813cf..cc8b80e 100644
+--- a/node_modules/@wavemaker/app-rn-runtime/styles/background.component.js
++++ b/node_modules/@wavemaker/app-rn-runtime/styles/background.component.js
+@@ -3,7 +3,7 @@ function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typ
+ function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+ import * as React from 'react';
+ import { LinearGradient as ExpoLinearGradient } from 'expo-linear-gradient';
+-import { Image, StyleSheet, View } from 'react-native';
++import { Image, StyleSheet, View, I18nManager } from 'react-native';
+ import { isEmpty, isNil, isNumber } from 'lodash-es';
+ import imageSizeEstimator from '@wavemaker/app-rn-runtime/core/imageSizeEstimator';
+ import { AssetConsumer } from '@wavemaker/app-rn-runtime/core/asset.provider';
+@@ -286,6 +286,7 @@ export class BackgroundComponent extends React.Component {
+         source: this.state.imageSrc,
+         resizeMode: psresult.resizeMode || 'cover',
+         style: [{
++          transform:[{scaleX:I18nManager.isRTL==false?1:-1}],
+           width: '100%',
+           height: '100%'
+         }, !isEmpty(psresult.size) || psresult.resizeMode === 'cover' || psresult.resizeMode === 'contain' ? null : {
