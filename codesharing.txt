@@ -1,0 +1,25 @@
+To get the user/onboarding info from previous app..
+
+We have 2 options
+
+
+Option 1: If new app will have same bundle id as that of previous app.
+
+Inputs required in this case:
+We just need to know how/where is the previous app storing the login info. If its SharedPref  in android or keychain in ios..or some other storage mechanism. Also, if the data is being encrypted before storing, then what encryption algo is being used.
+
+
+Option 2: If the new app will have a new bundle id.
+In this case, there are some further options and rules as below
+Android:
+    option 1: (Code changes required in old app as well)
+        - Old app need to have a ContentProvider class in code, 
+        - New app will have to use ContentResolver in code
+    option 2: (Code changes required in old app as well)
+        - Old app registers the login info in "Android Account Manager" by calling relevant functions
+        - New app can then get the login info from "Android Account Manager"
+
+IOS: (Code level change required in old app as well)
+    - Enable Keychain Sharing and define Access Group in both apps.
+    - Use the same Keychain Access Group to store and retrieve login info.
+    - Both apps must be published from same apple developer account
