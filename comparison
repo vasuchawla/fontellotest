@@ -1,8 +1,0 @@
-| **Feature Name**                  | **Google Maps API**         | **MapmyIndia (Mappls) API**  |
-| --------------------------------- | --------------------------- | ---------------------------- |
-| **Dynamic Maps**                  | Maps JavaScript API         | Maps SDK / Dynamic Maps API  |
-| **Geolocation (User Location)**   | Geolocation API             | Mobility & Tracking SDK      | https://about.mappls.com/api/mobility-and-tracking/
-| **Autocomplete (Search Suggest)** | Places Autocomplete API     | Search & Geocoding API  -> Autosuggest Search API              | https://www.mapmyindia.com/api/search-and-geocoding/
-| **Nearby Search (e.g., Banks)**   | Places API – Nearby Search  | Search & Geocoding API  -> Nearby API                   | https://www.mapmyindia.com/api/search-and-geocoding/
-| **Routing / Directions**          | Routes API (Compute Routes) | Routing API / Navigation SDK | https://about.mappls.com/api/routing
-| **Place Details**                 | Places Details API          | Search & Geocoding API -> Place Details API       | https://www.mapmyindia.com/api/search-and-geocoding/
