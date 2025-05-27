@@ -1,0 +1,35 @@
+Class RCTDevMenu is implemented in both JitsiMeetSDK.framework/JitsiMeetSDK and  RETAILDHOFAR.debug.dylib.
+This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
+
+Class RCTDevSettings is implemented in both JitsiMeetSDK.framework/JitsiMeetSDK and  RETAILDHOFAR.debug.dylib.
+This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
+
+Class RCTEventDispatcher is implemented in both JitsiMeetSDK.framework/JitsiMeetSDK and  RETAILDHOFAR.debug.dylib.
+This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
+
+Class RCTExceptionsManager is implemented in both JitsiMeetSDK.framework/JitsiMeetSDK and  RETAILDHOFAR.debug.dylib.
+This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
+
+Class RCTI18nManager is implemented in both JitsiMeetSDK.framework/JitsiMeetSDK and  RETAILDHOFAR.debug.dylib.
+This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
+
+Class RCTKeyboardObserver is implemented in both JitsiMeetSDK.framework/JitsiMeetSDK and  RETAILDHOFAR.debug.dylib.
+This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
+
+Class RCTLogBox is implemented in both JitsiMeetSDK.framework/JitsiMeetSDK and  RETAILDHOFAR.debug.dylib.
+This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
+
+Class RCTLogBoxView is implemented in both JitsiMeetSDK.framework/JitsiMeetSDK and  RETAILDHOFAR.debug.dylib.
+This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
+
+Class RCTPlatform is implemented in both JitsiMeetSDK.framework/JitsiMeetSDK and  RETAILDHOFAR.debug.dylib.
+This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
+
+Class RCTRedBox is implemented in both JitsiMeetSDK.framework/JitsiMeetSDK and  RETAILDHOFAR.debug.dylib.
+This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
+
+Class RCTSourceCode is implemented in both JitsiMeetSDK.framework/JitsiMeetSDK and  RETAILDHOFAR.debug.dylib.
+This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
+
+Class RCTStatusBarManager is implemented in both JitsiMeetSDK.framework/JitsiMeetSDK and  RETAILDHOFAR.debug.dylib.
+This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
