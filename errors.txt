@@ -1,3 +1,17 @@
+Hi, 
+
+I integrated Intilaqa SDK and also added the depdendency JitsiMeetSDK in pod file. 
+After adding the JitsiMeetSDK, the below errors are coming up in run time.
+The root cause is that JitsiMeet is also using React-native internally and the compiled framework binary includes a  copy of compiled react native classes. 
+The app also uses react native which results in duplicate classes of same name.
+
+
+To resolve this issue, i even tried Jitsi Meet's react native sdk ie https://www.npmjs.com/package/@jitsi/react-native-sdk 
+But this sdk gets added to app as a static framework, where as Intilaqa is expecting a dynamic linked framework hence that too is throwing the error on app launch.
+
+
+
+
 Class RCTDevMenu is implemented in both JitsiMeetSDK.framework/JitsiMeetSDK and  RETAILDHOFAR.debug.dylib.
 This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
 
