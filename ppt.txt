@@ -1,0 +1,131 @@
+[Slide 1] – Title Slide
+  Title: Accessibility Testing for iOS & Android
+  Subtitle: Enabling Inclusive Mobile Experiences
+  Presented by: [Your Name / Team]
+  Date: [Insert Date]
+
+[Slide 2] – Why Accessibility Matters
+  Over 1 billion people globally have a disability.
+  Legal compliance: ADA, WCAG, Section 508.
+  Business value: Improved usability, broader reach.
+  Positive brand reputation.
+
+[Slide 3] – What is Accessibility Testing?
+  Ensures apps are usable by people with:
+    Vision impairments (blind, low vision, color blindness)
+    Hearing impairments
+    Motor impairments
+    Cognitive limitations
+  Validates support for assistive technologies:
+    iOS: VoiceOver, Dynamic Type, Switch Control
+    Android: TalkBack, Magnification, Accessibility Menu
+
+[Slide 4] – Key Accessibility Guidelines
+  WCAG 2.1 (Web Content Accessibility Guidelines)
+  
+  Apple Human Interface Guidelines – Accessibility
+  
+  Android Accessibility Guidelines
+
+[Slide 5] – Accessibility Testing Strategy
+Manual Testing
+    
+    Screen reader navigation (VoiceOver/TalkBack)
+    
+    Color contrast and visual elements
+    
+    Focus order and keyboard navigation
+    
+    Dynamic text scaling
+    
+    Touch target size
+    
+    Automated Tools
+
+iOS: Accessibility Inspector (Xcode)
+    
+    Android: Accessibility Scanner
+    
+    Axe DevTools, Espresso + Accessibility Checks
+
+[Slide 6] – Common Accessibility Issues
+Missing labels on buttons/images
+
+Poor color contrast
+
+Non-intuitive gestures or focus traps
+
+Inconsistent focus order
+
+Inaccessible custom components
+
+[Slide 7] – Tools & Frameworks
+iOS:
+
+    Accessibility Inspector
+    
+    XCTest with accessibility assertions
+
+Android:
+
+    Accessibility Scanner
+    
+    Espresso Accessibility Checks
+
+Cross-platform:
+    
+    Axe for Android
+    
+    Google Lighthouse (for web views)
+    
+    Screen reader emulators
+
+[Slide 8] – Sample Test Scenarios
+Verify all interactive elements are labeled.
+
+Validate navigation using screen reader only.
+
+Ensure color contrast is WCAG AA compliant.
+
+Test scaling with larger text settings.
+
+Verify app responds correctly to system accessibility settings.
+
+[Slide 9] – Accessibility in CI/CD
+Integrate accessibility checks in pipelines:
+    
+    Lint checks for accessibility
+    
+    Run automated tests post-build
+
+Include accessibility in code review checklists.
+
+[Slide 10] – Accessibility Testing Best Practices
+Start early: Shift-left approach
+
+Include accessibility in design and development
+
+Involve users with disabilities for real-world feedback
+
+Use personas with accessibility needs
+
+Keep testing ongoing as features evolve
+
+[Slide 11] – KPIs & Metrics
+% of screens tested for accessibility
+
+of accessibility defects found/resolved
+Compliance score (e.g., WCAG AA level)
+
+Automated tool scan scores
+
+[Slide 12] – Next Steps
+Conduct accessibility audit
+
+Fix critical accessibility issues
+
+Train developers/designers
+
+Embed accessibility in QA process
+
+[Slide 13] – Questions & Discussion
