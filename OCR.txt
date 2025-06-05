@@ -1,0 +1,21 @@
+TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+    .process(image)
+    .addOnSuccessListener(result -> {
+        for (Text.TextBlock block : result.getTextBlocks()) {
+            String text = block.getText();
+            
+            // Extract only digits
+            String digitsOnly = text.replaceAll("[^\\d]", "");
+            
+            // Check if we have exactly 16 digits
+            if (digitsOnly.length() == 16) {
+                Intent intent = new Intent();
+                intent.putExtra("cardNumber", text);
+                setResult(Activity.RESULT_OK, intent);
+                finish();
+                return; // Exit after finding the first valid card
+            }
+        }
+        imageProxy.close();
+    })
+    .addOnFailureListener(e -> imageProxy.close());
